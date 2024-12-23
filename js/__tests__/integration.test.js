@@ -4,7 +4,7 @@ const { execSync } = require('child_process');
 const rimraf = require('rimraf');
 const { chat, save, showHistory, execute } = require('../ide_extension');
 const { loadState, saveState } = require('../state');
-const { initGitRepo, createNewBranch, commitChanges } = require('../git_manager');
+const { initGitRepo, createNewBranch, commitChanges } = require('../../history/git_manager');
 const { chatWithLLM, generateCode } = require('../llm_interaction');
 
 jest.mock('../llm_interaction');

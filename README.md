@@ -1,12 +1,6 @@
 # READMEs Programming System
 
-A self-contained programming system using README.md as executable documentation, optimized for LLM and Git automation.
-
-## Quick Navigation
-📘 Documentation:
-- [Full Documentation](doc/Rdm_documentation.md#system-overview)
-- [Standards Guide](doc/Rdm_standards.md#llm-processing-protocol)
-- [Integration Guide](doc/Rdm_git.md#core-features)
+A self-contained programming system using README.md as executable documentation.
 
 ## System Configuration
 ```yaml
@@ -14,7 +8,6 @@ version: 1.0
 metadata:
   standalone: true
   web_compatible: true
-  git_ready: true
   
 context:
   enabled: true
@@ -25,106 +18,57 @@ variables:
   readme_content: ""
   previous_output: ""
   system_state: ""
-  
-llm_protocol:
-  context_depth: 3
-  attention_focus: ["config", "execution", "state"]
-  navigation:
-    quick_links: enabled
-    state_preservation: true
-    cross_references: enabled
-  
-parser:
-  heading_section: ^##\s+(.+)$
-  heading_function: ^#\s+(.+)$
-  list_item: ^(\s+)-\s+(.+)$
-  key_value: ^(\s+)-\s+(\w+):\s*(.+)$
 ```
 
-### Parser Implementation
+## LLM Optimization Features
 
-```javascript
-// This is an example of basic implementation to bootstrap the process
-const parseMDScript = (md) => {
-   //Basic logic to execute MDScript
-   const functions = parser.getFunctions(md); // the JavaScript function
-   const templates = parser.getTemplates(md);
-   functions.forEach(fn => { /* ... do something ... */});
-   templates.forEach(template => { /* ... do something ... */});
-};
-```
+## Function Examples
 
-## Core Functions
-
-### System Bootstrap
+### Basic Text Processing
 ```markdown
-# Execute
-- function: system_init
-- input: "{{readme_content}}"
-- context:
-  - git_aware: true
-  - llm_ready: true
+# Function: process_text
+- description: "Processes input text"
+- input: text: string
+- output: result: string
+- template: text_processor
 ```
 
-### Program Execution
+### Text Processor Template
 ```markdown
-# Execute
-- function: system_execute
-- template: "{{selected_template}}"
-- input: "{{user_input}}"
-- state: "{{system_state}}"
+# Template: text_processor
+- input_placeholder: "{{text}}"
+- transform: |
+    return context.text.toUpperCase();
+- output_format: string
 ```
+
+### Navigation Example
 ```markdown
-//your executions here
-```
-### State Management
-```markdown
-# State Tracking
-- preserve: current_context
-- store: git_enabled
-- track: ["output", "context", "state"]
+# Warmhole: text_processor
+- description: "Navigate to text processing"
+- state_transfer: ["text"]
+- condition: "true"
+- next_warmhole: "result_viewer"
 ```
 
 ## Quick Start
 
-### 1. Initialize System
-```sh
-git clone https://github.com/yourusername/readmes
-cd readmes
-# System auto-initializes on first LLM interaction
+1. Initialize the system:
+```javascript
+const system = require('./js/core_logic');
+const result = system.system_init(readme_content);
 ```
 
-### 2. Execute Program
-```markdown
-# Run Program
-- template: quick_start
-- input: "Hello READMEs!"
-- track_state: true
+2. Execute a function:
+```javascript
+system.execute('process_text', { input: 'hello world' });
 ```
 
-## Integration Points
-
-### LLM Processing
-- See [LLM Protocol](doc/Rdm_standards.md#llm-processing-protocol)
-- Context preservation enabled
-- Warmhole navigation supported
-
-### Git Automation
-- See [Git Integration](doc/Rdm_git.md#workflow-guide)
-- State tracking
-- Branch awareness
-
-### Documentation Standards
-- See [Standards Guide](doc/Rdm_standards.md#document-structure)
-- Cross-referencing
-- State management
-
-## Reference Links
-- [Implementation Details](doc/Rdm_documentation.md#core-components)
-- [Testing Guide](doc/Rdm_testing.md#testing-methods)
-- [Library Integration](doc/Rdm_external_libraries.md#library-system)
+3. Navigate through warmhole:
+```javascript
+system.navigateWarmhole('text_processor');
+```
 
 ---
 📝 This README serves as both documentation and executable program
-🔄 State changes are tracked via Git
 🤖 Optimized for LLM processing

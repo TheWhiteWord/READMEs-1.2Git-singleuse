@@ -1,0 +1,25 @@
+{
+    "name": "readmes-ide",
+    "displayName": "READMEs IDE",
+    "description": "IDE support for READMEs Programming System",
+    "version": "0.1.0",
+    "engines": {
+        "vscode": "^1.80.0"
+    },
+    "activationEvents": [
+        "onLanguage:markdown"
+    ],
+    "main": "./extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "readmes.execute",
+                "title": "READMEs: Execute Function"
+            },
+            {
+                "command": "readmes.navigate",
+                "title": "READMEs: Navigate Warmhole"
+            }
+        ]
+    }
+}

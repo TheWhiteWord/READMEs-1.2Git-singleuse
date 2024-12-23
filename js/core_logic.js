@@ -47,9 +47,13 @@ function extractByRegex(content, pattern) {
  * Parse function definition from markdown
  */
 function parseFunctionDef(content) {
-    const regex = /# Function:\s+(\w+)\n-\s*description:\s*"([^"]+)"\n-\s*input:\s*(\w+):\s*(\w+)\n-\s*output:\s*(\w+):\s*(\w+)\n-\s*template:\s*(\w+)/;
+    console.log("Parsing function:", content); // Debug log
+    const regex = /# Function:\s*(\w+)\s*\n-\s*description:\s*"([^"]+)"\s*\n-\s*input:\s*(\w+):\s*(\w+)\s*\n-\s*output:\s*(\w+):\s*(\w+)\s*\n-\s*template:\s*(\w+)/;
     const match = content.match(regex);
-    if (!match) return null;
+    if (!match) {
+        console.log("No match for function"); // Debug log
+        return null;
+    }
     
     return {
         name: match[1],
@@ -64,9 +68,13 @@ function parseFunctionDef(content) {
  * Parse template definition from markdown
  */
 function parseTemplateDef(content) {
-    const regex = /# Template:\s+(\w+)\n-\s*input_placeholder:\s*"([^"]+)"\n-\s*transform:\s*\|([^-]+)\n-\s*output_format:\s*(\w+)/;
+    console.log("Parsing template:", content); // Debug log
+    const regex = /# Template:\s*(\w+)\s*\n-\s*input_placeholder:\s*"([^"]+)"\s*\n-\s*transform:\s*\|([\s\S]*?)(?=\n-|$)\n-\s*output_format:\s*(\w+)/;
     const match = content.match(regex);
-    if (!match) return null;
+    if (!match) {
+        console.log("No match for template"); // Debug log
+        return null;
+    }
     
     return {
         name: match[1],
@@ -87,7 +95,7 @@ function parseWarmholeDef(content) {
     return {
         name: match[1],
         description: match[2],
-        state_transfer: match[3].split(',').map(s => s.trim()),
+        state_transfer: match[3].split(',').map(s => s.trim().replace(/['"]/g, '')), // Remove quotes
         condition: match[4],
         next_warmhole: match[5]
     };
@@ -106,43 +114,50 @@ function system_init(readmeContent) {
         // Parse core sections
         const sections = extractByRegex(readmeContent, '^##\\s+(.+)$');
         
-        // Parse functions
-        const functions = extractByRegex(readmeContent, '# Function:[\\s\\S]*?```');
-        functions.forEach(fn => {
-            const def = parseFunctionDef(fn[0]);
-            if (def) systemState.functions[def.name] = def;
+        // Parse Functions
+        const functionBlocks = readmeContent.match(/# Function:[\s\S]*?(?=\n# |$)/g) || [];
+        functionBlocks.forEach(block => {
+            const def = parseFunctionDef(block);
+            if (def) {
+                console.log("Found function:", def.name); // Debug log
+                systemState.functions[def.name] = def;
+            }
         });
         
-        // Parse templates
-        const templates = extractByRegex(readmeContent, '# Template:[\\s\\S]*?```');
-        templates.forEach(tmpl => {
-            const def = parseTemplateDef(tmpl[0]);
-            if (def) systemState.templates[def.name] = def;
+        // Parse Templates
+        const templateBlocks = readmeContent.match(/# Template:[\s\S]*?(?=\n# |$)/g) || [];
+        templateBlocks.forEach(block => {
+            const def = parseTemplateDef(block);
+            if (def) {
+                console.log("Found template:", def.name); // Debug log
+                systemState.templates[def.name] = def;
+            }
         });
         
-        // Parse warmholes
-        const warmholes = extractByRegex(readmeContent, '# Warmhole:[\\s\\S]*?```');
-        warmholes.forEach(wh => {
-            const def = parseWarmholeDef(wh[0]);
-            if (def) systemState.warmholes[def.name] = def;
+        // Parse Warmholes
+        const warmholeBlocks = readmeContent.match(/# Warmhole:[\s\S]*?(?=\n# |$)/g) || [];
+        warmholeBlocks.forEach(block => {
+            const def = parseWarmholeDef(block);
+            if (def) {
+                console.log("Found warmhole:", def.name); // Debug log
+                systemState.warmholes[def.name] = def;
+            }
         });
         
         // Cache metadata
         systemState.metadata = cacheMetadata(readmeContent);
         
-        logSystem('System initialized successfully', {
+        const stats = {
             sections: sections.length,
             functions: Object.keys(systemState.functions).length,
             templates: Object.keys(systemState.templates).length,
             warmholes: Object.keys(systemState.warmholes).length
-        });
+        };
         
+        logSystem('System initialized successfully', stats);
         return {
             status: "initialized",
-            sections: sections.length,
-            functions: Object.keys(systemState.functions).length,
-            templates: Object.keys(systemState.templates).length,
-            warmholes: Object.keys(systemState.warmholes).length
+            ...stats
         };
     } catch (error) {
         logSystem('Initialization failed', { error: error.message });
@@ -205,13 +220,20 @@ function executeTemplateDef(templateDef, context) {
     
     // Execute transformed code
     try {
-        const result = new Function('context', `return ${code}`)(context);
+        // Create a proper function that returns the result
+        code = `
+            return (function(context) { 
+                ${code}
+            })(arguments[0]);
+        `;
+        const result = new Function('context', code)(context);
         return {
             status: "success",
             result,
             format: templateDef.outputFormat
         };
     } catch (error) {
+        logSystem('Template execution failed', { error: error.message, code });
         return {
             status: "error",
             error: error.message,
@@ -231,10 +253,17 @@ function navigateWarmhole(id) {
         throw new Error(`Warmhole not found: ${id}`);
     }
     
+    // Initialize context if null
+    if (!systemState.currentContext) {
+        systemState.currentContext = {};
+    }
+    
     // Update state based on state_transfer
     if (warmhole.state_transfer) {
         warmhole.state_transfer.forEach(variable => {
-            systemState.variables[variable] = systemState.currentContext[variable];
+            if (systemState.currentContext[variable] !== undefined) {
+                systemState.variables[variable] = systemState.currentContext[variable];
+            }
         });
     }
     
@@ -242,7 +271,10 @@ function navigateWarmhole(id) {
     systemState.previousOutput = systemState.currentContext?.output;
     
     // Update current context
-    systemState.currentContext = warmhole.next_warmhole;
+    systemState.currentContext = {
+        warmhole: warmhole.next_warmhole,
+        ...systemState.variables
+    };
     
     return {
         status: "navigated",
