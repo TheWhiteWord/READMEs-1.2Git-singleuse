@@ -40,6 +40,22 @@ function activate(context) {
         }
     });
 
+    // Add hover provider for functions and warmholes
+    const hoverProvider = vscode.languages.registerHoverProvider('markdown', {
+        provideHover(document, position) {
+            const range = document.getWordRangeAtPosition(position);
+            const word = document.getText(range);
+            
+            // Check if word is a function or warmhole name
+            if (systemState?.functions[word]) {
+                return new vscode.Hover(`Function: ${word}\n${systemState.functions[word].description}`);
+            }
+            if (systemState?.warmholes[word]) {
+                return new vscode.Hover(`Warmhole: ${word}\n${systemState.warmholes[word].description}`);
+            }
+        }
+    });
+
     // Register execute command with quick pick
     let executeCommand = vscode.commands.registerCommand('readmes.execute', async () => {
         if (!systemState?.functions) {
@@ -47,18 +63,23 @@ function activate(context) {
             return;
         }
 
-        const functionNames = Object.keys(systemState.functions);
-        const selected = await vscode.window.showQuickPick(functionNames, {
+        // Show quick pick with function list
+        const functionList = Object.keys(systemState.functions).map(fn => ({
+            label: fn,
+            description: systemState.functions[fn].description
+        }));
+
+        const selected = await vscode.window.showQuickPick(functionList, {
             placeHolder: 'Select function to execute'
         });
 
         if (selected) {
-            const input = await vscode.window.showInputBox({
-                prompt: `Enter input for ${selected}`
-            });
-            
             try {
-                const result = execute(selected, { input });
+                const input = await vscode.window.showInputBox({
+                    prompt: `Enter input for ${selected.label}`
+                });
+                const result = execute(selected.label, { input });
+                statusBarItem.text = `READMEs: ${result.status}`;
                 vscode.window.showInformationMessage(`Result: ${result.result}`);
             } catch (error) {
                 vscode.window.showErrorMessage(error.message);
@@ -90,7 +111,7 @@ function activate(context) {
         }
     });
 
-    context.subscriptions.push(executeCommand, navigateCommand, statusBarItem);
+    context.subscriptions.push(statusBarItem, hoverProvider, executeCommand, navigateCommand);
 }
 
 function highlightWarmholes(editor, decoration) {
