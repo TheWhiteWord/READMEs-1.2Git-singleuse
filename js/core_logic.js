@@ -204,7 +204,7 @@ async function execute(nameOrPlan, context = {}, llm = true) {
             }
 
             // Execute template with context
-            const result = executeTemplateDef(template, parsedResponse.input);
+            const result = await executeTemplateDef(template, parsedResponse.input);
             
             // Save the state after execution
             saveState();
