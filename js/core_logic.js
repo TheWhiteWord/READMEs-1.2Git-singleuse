@@ -262,8 +262,8 @@ async function executeTemplateDef(templateDef, context) {
     }
 
     // Execute the transform function with the parsed response
-    const transformFunction = new Function('context', 'execute', templateDef.transform);
-    const result = await transformFunction(parsedResponse.result, execute);
+    const transformFunction = new Function('context', 'execute', 'chatWithLLM', templateDef.transform);
+    const result = await transformFunction(parsedResponse.result, execute, chatWithLLM);
 
     return {
         status: "success",
