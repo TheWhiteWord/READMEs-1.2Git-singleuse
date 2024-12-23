@@ -1,5 +1,6 @@
 const cacheMetadata = require('./cache_metadata');
 const { chatWithLLM, analyzeState } = require('./llm_interaction');
+const { extractByRegex, parseFunctionDef, parseTemplateDef, parseWarmholeDef } = require('./parse_utils');
 const fs = require('fs');
 
 // Global state object with complete structure
@@ -38,77 +39,6 @@ function logSystem(message, data = null) {
 }
 
 /**
- * Extract content using regex pattern
- */
-function extractByRegex(content, pattern) {
-    const matches = [];
-    const regex = new RegExp(pattern, 'g');
-    let match;
-    while ((match = regex.exec(content)) !== null) {
-        matches.push(match);
-    }
-    return matches;
-}
-
-/**
- * Parse function definition from markdown
- */
-function parseFunctionDef(content) {
-    console.log("Parsing function:", content); // Debug log
-    const regex = /# Function:\s*(\w+)\s*\n-\s*description:\s*"([^"]+)"\s*\n-\s*input:\s*(\w+):\s*(\w+)\s*\n-\s*output:\s*(\w+):\s*(\w+)\s*\n-\s*template:\s*(\w+)/;
-    const match = content.match(regex);
-    if (!match) {
-        console.log("No match for function"); // Debug log
-        return null;
-    }
-    
-    return {
-        name: match[1],
-        description: match[2],
-        input: { name: match[3], type: match[4] },
-        output: { name: match[5], type: match[6] },
-        template: match[7]
-    };
-}
-
-/**
- * Parse template definition from markdown
- */
-function parseTemplateDef(content) {
-    console.log("Parsing template:", content); // Debug log
-    const regex = /# Template:\s*(\w+)\s*\n-\s*input_placeholder:\s*"([^"]+)"\s*\n-\s*transform:\s*\|([\s\S]*?)(?=\n-|$)\n-\s*output_format:\s*(\w+)/;
-    const match = content.match(regex);
-    if (!match) {
-        console.log("No match for template"); // Debug log
-        return null;
-    }
-    
-    return {
-        name: match[1],
-        placeholder: match[2],
-        transform: match[3].trim(),
-        outputFormat: match[4]
-    };
-}
-
-/**
- * Parse warmhole definition from markdown
- */
-function parseWarmholeDef(content) {
-    const regex = /# Warmhole:\s+(\w+)\n-\s*description:\s*"([^"]+)"\n-\s*state_transfer:\s*\[([^\]]+)\]\n-\s*condition:\s*"([^"]+)"\n-\s*next_warmhole:\s*"([^"]+)"/;
-    const match = content.match(regex);
-    if (!match) return null;
-    
-    return {
-        name: match[1],
-        description: match[2],
-        state_transfer: match[3].split(',').map(s => s.trim().replace(/['"]/g, '')), // Remove quotes
-        condition: match[4],
-        next_warmhole: match[5]
-    };
-}
-
-/**
  * Initialize the system
  */
 function system_init(readmeContent) {
@@ -118,44 +48,42 @@ function system_init(readmeContent) {
         // Store content
         systemState.variables.readme_content = readmeContent;
         
-        // Parse core sections
-        const sections = extractByRegex(readmeContent, '^##\\s+(.+)$');
+        // Parse core sections using regex extraction
+        const functionBlocks = extractByRegex(readmeContent, /# Function:[\s\S]*?(?=\n# |$)/);
+        const templateBlocks = extractByRegex(readmeContent, /# Template:[\s\S]*?(?=\n# |$)/);
+        const warmholeBlocks = extractByRegex(readmeContent, /# Warmhole:[\s\S]*?(?=\n# |$)/);
         
         // Parse Functions
-        const functionBlocks = readmeContent.match(/# Function:[\s\S]*?(?=\n# |$)/g) || [];
         functionBlocks.forEach(block => {
-            const def = parseFunctionDef(block);
+            const def = parseFunctionDef(block.raw);
             if (def) {
-                console.log("Found function:", def.name); // Debug log
+                console.log("Found function:", def.name);
                 systemState.functions[def.name] = def;
             }
         });
         
         // Parse Templates
-        const templateBlocks = readmeContent.match(/# Template:[\s\S]*?(?=\n# |$)/g) || [];
         templateBlocks.forEach(block => {
-            const def = parseTemplateDef(block);
+            const def = parseTemplateDef(block.raw);
             if (def) {
-                console.log("Found template:", def.name); // Debug log
+                console.log("Found template:", def.name);
                 systemState.templates[def.name] = def;
             }
         });
         
         // Parse Warmholes
-        const warmholeBlocks = readmeContent.match(/# Warmhole:[\s\S]*?(?=\n# |$)/g) || [];
         warmholeBlocks.forEach(block => {
-            const def = parseWarmholeDef(block);
+            const def = parseWarmholeDef(block.raw);
             if (def) {
-                console.log("Found warmhole:", def.name); // Debug log
+                console.log("Found warmhole:", def.name);
                 systemState.warmholes[def.name] = def;
             }
         });
         
-        // Cache metadata
+        // Cache metadata for faster access
         systemState.metadata = cacheMetadata(readmeContent);
         
         const stats = {
-            sections: sections.length,
             functions: Object.keys(systemState.functions).length,
             templates: Object.keys(systemState.templates).length,
             warmholes: Object.keys(systemState.warmholes).length
@@ -465,9 +393,6 @@ module.exports = {
     navigateWarmhole,
     systemState,
     // Export helper functions for testing
-    parseFunctionDef,
-    parseTemplateDef,
-    parseWarmholeDef,
     logSystem,
     processUserIntent,
     executeLLMPlan,
