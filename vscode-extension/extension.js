@@ -1,5 +1,5 @@
 const vscode = require('vscode');
-const { system_init, execute, navigateWarmhole } = require('../js/core_logic');
+const { system_init, processUserIntent, getSystemContext } = require('../js/core_logic');
 const fs = require('fs');
 const path = require('path');
 
@@ -76,62 +76,45 @@ function activate(context) {
         }
     });
 
-    // Register execute command with quick pick
+    // Register execute command with natural language input
     let executeCommand = vscode.commands.registerCommand('readmes.execute', async () => {
-        if (!systemState?.functions) {
+        if (!systemState) {
             vscode.window.showErrorMessage('System not initialized');
             return;
         }
 
-        // Show quick pick with function list
-        const functionList = Object.keys(systemState.functions).map(fn => ({
-            label: fn,
-            description: systemState.functions[fn].description
-        }));
-
-        const selected = await vscode.window.showQuickPick(functionList, {
-            placeHolder: 'Select function to execute'
+        // Get user intent via input box
+        const userIntent = await vscode.window.showInputBox({
+            placeHolder: 'What would you like to do?',
+            prompt: 'Enter your request in natural language'
         });
 
-        if (selected) {
+        if (userIntent) {
             try {
-                const input = await vscode.window.showInputBox({
-                    prompt: `Enter input for ${selected.label}`
+                statusBarItem.text = 'READMEs: Processing...';
+                
+                // Process user intent through LLM
+                const result = await processUserIntent(userIntent, {
+                    systemState,
+                    activeWarmhole,
+                    context: getSystemContext()
                 });
-                const result = execute(selected.label, { input });
+
+                // Update status and show result
                 statusBarItem.text = `READMEs: ${result.status}`;
-                vscode.window.showInformationMessage(`Result: ${result.result}`);
+                vscode.window.showInformationMessage(result.message);
+                
+                // Update active warmhole if changed
+                if (result.activeWarmhole) {
+                    activeWarmhole = result.activeWarmhole;
+                }
             } catch (error) {
-                vscode.window.showErrorMessage(error.message);
+                vscode.window.showErrorMessage(`Error: ${error.message}`);
             }
         }
     });
 
-    // Register navigate command with quick pick
-    let navigateCommand = vscode.commands.registerCommand('readmes.navigate', async () => {
-        if (!systemState?.warmholes) {
-            vscode.window.showErrorMessage('System not initialized');
-            return;
-        }
-
-        const warmholeIds = Object.keys(systemState.warmholes);
-        const selected = await vscode.window.showQuickPick(warmholeIds, {
-            placeHolder: 'Select warmhole to navigate'
-        });
-        
-        if (selected) {
-            try {
-                const result = navigateWarmhole(selected);
-                activeWarmhole = result.to;
-                statusBarItem.text = `READMEs: At ${activeWarmhole}`;
-                vscode.window.showInformationMessage(`Navigated to: ${result.to}`);
-            } catch (error) {
-                vscode.window.showErrorMessage(error.message);
-            }
-        }
-    });
-
-    context.subscriptions.push(statusBarItem, hoverProvider, executeCommand, navigateCommand);
+    context.subscriptions.push(statusBarItem, hoverProvider, executeCommand);
 }
 
 function highlightWarmholes(editor, decoration) {
