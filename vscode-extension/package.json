@@ -1,11 +1,14 @@
 {
-    "name": "readmes-ide",
-    "displayName": "READMEs IDE",
-    "description": "IDE support for READMEs Programming System",
-    "version": "0.1.0",
+    "name": "readmes-extension",
+    "displayName": "READMEs",
+    "description": "READMEs extension for VS Code",
+    "version": "0.0.1",
     "engines": {
         "vscode": "^1.80.0"
     },
+    "categories": [
+        "Other"
+    ],
     "activationEvents": [
         "onLanguage:markdown"
     ],
@@ -23,12 +26,14 @@
         ]
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "node ./test/runTest.js"
     },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
+    "dependencies": {
+        "vscode": "^1.1.37",
+        "fs-extra": "^10.0.0"
+    },
     "devDependencies": {
-        "@types/vscode": "^1.96.0"
+        "@types/vscode": "^1.80.0",
+        "@types/node": "^16.x"
     }
 }

@@ -1,5 +1,7 @@
 const vscode = require('vscode');
 const { system_init, execute, navigateWarmhole } = require('../js/core_logic');
+const fs = require('fs');
+const path = require('path');
 
 // Track active system state
 let systemState = null;
@@ -8,6 +10,18 @@ let activeWarmhole = null;
 
 function activate(context) {
     console.log('READMEs extension is active');
+
+    // Ensure required directories exist
+    const logBasePath = path.join(process.env.APPDATA || (process.platform === 'darwin' ? process.env.HOME + '/Library/Application Support' : '/var/local'), 'Code', 'logs');
+    
+    try {
+        if (!fs.existsSync(logBasePath)) {
+            fs.mkdirSync(logBasePath, { recursive: true });
+        }
+    } catch (err) {
+        // Non-fatal error, just log it
+        console.error('Failed to create logs directory:', err);
+    }
 
     // Create status bar item
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
@@ -44,14 +58,20 @@ function activate(context) {
     const hoverProvider = vscode.languages.registerHoverProvider('markdown', {
         provideHover(document, position) {
             const range = document.getWordRangeAtPosition(position);
+            if (!range) return;
+            
             const word = document.getText(range);
             
             // Check if word is a function or warmhole name
             if (systemState?.functions[word]) {
-                return new vscode.Hover(`Function: ${word}\n${systemState.functions[word].description}`);
+                return {
+                    contents: [`Function: ${word}`, systemState.functions[word].description]
+                };
             }
             if (systemState?.warmholes[word]) {
-                return new vscode.Hover(`Warmhole: ${word}\n${systemState.warmholes[word].description}`);
+                return {
+                    contents: [`Warmhole: ${word}`, systemState.warmholes[word].description]
+                };
             }
         }
     });
