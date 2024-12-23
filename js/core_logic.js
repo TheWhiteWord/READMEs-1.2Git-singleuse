@@ -1,5 +1,5 @@
 const cacheMetadata = require('./cache_metadata');
-const { chatWithLLM, analyzeState } = require('./llm_interaction');
+const { chatWithLLM, processUserIntent } = require('./llm_interaction');
 const { extractByRegex, parseFunctionDef, parseTemplateDef, parseWarmholeDef } = require('./parse_utils');
 const fs = require('fs');
 const path = require('path');
@@ -72,7 +72,7 @@ function loadState() {
 /**
  * Initialize the system
  */
-function system_init(readmeContent) {
+async function system_init(readmeContent) {
     logSystem('Initializing system...');
     
     try {
@@ -122,10 +122,17 @@ function system_init(readmeContent) {
         
         logSystem('System initialized successfully', stats);
         saveState();
-        return {
-            status: "initialized",
-            ...stats
-        };
+
+        // Analyze the README content to determine the user intent and generate an execution plan
+        const plan = await processUserIntent(readmeContent, {
+            systemState: systemState,
+            availableFunctions: Object.keys(systemState.functions),
+            availableWarmholes: Object.keys(systemState.warmholes)
+        });
+
+        // Execute the plan
+        const result = await executeLLMPlan(plan);
+        return result;
     } catch (error) {
         logSystem('Initialization failed', { error: error.message });
         throw error;
@@ -133,24 +140,29 @@ function system_init(readmeContent) {
 }
 
 /**
- * Execute a function or template
+ * Execute a function, template, or plan
  */
-async function execute(name, context = {}, llm = true) {
-    logSystem(`Executing ${name}`, { context });
+async function execute(nameOrPlan, context = {}, llm = true) {
+    logSystem(`Executing ${nameOrPlan}`, { context });
 
     try {
         // Load the state before execution
         loadState();
 
+        // Check if the input is a plan
+        if (typeof nameOrPlan === 'object' && nameOrPlan.steps) {
+            return await executeLLMPlan(nameOrPlan);
+        }
+
         // Check if function exists
-        const fn = systemState.functions[name];
+        const fn = systemState.functions[nameOrPlan];
         if (fn) {
             // Pass user inputs and system state to the LLM if llm is true
             let parsedResponse = { input: context };
             if (llm) {
                 const llmResponse = await chatWithLLM(JSON.stringify({
                     type: 'execute_function',
-                    function: name,
+                    function: nameOrPlan,
                     input: context,
                     systemState: systemState
                 }));
@@ -176,14 +188,14 @@ async function execute(name, context = {}, llm = true) {
         }
 
         // Check if template exists
-        const template = systemState.templates[name];
+        const template = systemState.templates[nameOrPlan];
         if (template) {
             // Pass user inputs and system state to the LLM if llm is true
             let parsedResponse = { input: context };
             if (llm) {
                 const llmResponse = await chatWithLLM(JSON.stringify({
                     type: 'execute_template',
-                    template: name,
+                    template: nameOrPlan,
                     input: context,
                     systemState: systemState
                 }));
@@ -208,7 +220,7 @@ async function execute(name, context = {}, llm = true) {
             return result;
         }
 
-        throw new Error(`No function or template found with name: ${name}`);
+        throw new Error(`No function or template found with name: ${nameOrPlan}`);
     } catch (error) {
         logSystem('Execution failed', { error: error.message });
         throw error;
