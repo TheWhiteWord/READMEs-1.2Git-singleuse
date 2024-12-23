@@ -274,8 +274,18 @@ async function processUserIntent(message, context = {}) {
             }
         }));
 
+        // Check if the response is JSON
+        let parsedPlan;
+        try {
+            parsedPlan = JSON.parse(plan);
+        } catch (error) {
+            // Handle plain text response
+            logSystem('Received plain text response from LLM', { plan });
+            parsedPlan = { steps: [{ type: 'message', content: plan }] };
+        }
+
         // Execute the plan
-        const result = await executeLLMPlan(JSON.parse(plan));
+        const result = await executeLLMPlan(parsedPlan);
         saveState();
         return result;
     } catch (error) {

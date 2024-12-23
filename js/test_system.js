@@ -1,13 +1,14 @@
 const { system_init, execute, navigateWarmhole, processUserIntent, loadState, saveState, systemState } = require('./core_logic');
 const fs = require('fs');
+const path = require('path');
 
 // Helper function to load README content
 function loadReadmeContent() {
-    const readmePath = '../README.md';
+    const readmePath = path.join(__dirname, '../README.md');
     if (fs.existsSync(readmePath)) {
         return fs.readFileSync(readmePath, 'utf8');
     }
-    throw new Error('README.md file not found');
+    throw new Error('README.md file not found in the root directory');
 }
 
 // Initialize the system
