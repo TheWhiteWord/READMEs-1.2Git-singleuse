@@ -124,11 +124,7 @@ async function system_init(readmeContent) {
         saveState();
 
         // Analyze the README content to determine the user intent and generate an execution plan
-        const plan = await processUserIntent(readmeContent, {
-            systemState: systemState,
-            availableFunctions: Object.keys(systemState.functions),
-            availableWarmholes: Object.keys(systemState.warmholes)
-        });
+        const plan = await processUserIntent(readmeContent, systemState);
 
         // Execute the plan
         const result = await executeLLMPlan(plan);

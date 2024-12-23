@@ -28,14 +28,43 @@
       "type": "section",
       "line": "# Warmhole: intent_processor\r"
     },
-    "readmes_programming_system_.system_configuration_.llm_optimization_features_.function_examples_.function:_process_intent_.template:_llm_processor_.warmhole:_intent_processor_.quick_start_": {
+    "readmes_programming_system_.system_configuration_.llm_optimization_features_.function_examples_.function:_process_intent_.template:_llm_processor_.warmhole:_intent_processor_.comprehensive_example_": {
+      "type": "section",
+      "line": "## Comprehensive Example\r"
+    },
+    "readmes_programming_system_.system_configuration_.llm_optimization_features_.function_examples_.function:_process_intent_.template:_llm_processor_.warmhole:_intent_processor_.comprehensive_example_.function:_analyze_data_": {
+      "type": "section",
+      "line": "# Function: analyze_data\r"
+    },
+    "readmes_programming_system_.system_configuration_.llm_optimization_features_.function_examples_.function:_process_intent_.template:_llm_processor_.warmhole:_intent_processor_.comprehensive_example_.function:_analyze_data_.template:_data_analyzer_": {
+      "type": "section",
+      "line": "# Template: data_analyzer\r"
+    },
+    "readmes_programming_system_.system_configuration_.llm_optimization_features_.function_examples_.function:_process_intent_.template:_llm_processor_.warmhole:_intent_processor_.comprehensive_example_.function:_analyze_data_.template:_data_analyzer_.warmhole:_data_processing_": {
+      "type": "section",
+      "line": "# Warmhole: data_processing\r"
+    },
+    "readmes_programming_system_.system_configuration_.llm_optimization_features_.function_examples_.function:_process_intent_.template:_llm_processor_.warmhole:_intent_processor_.comprehensive_example_.function:_analyze_data_.template:_data_analyzer_.warmhole:_data_processing_.warmhole:_report_generation_": {
+      "type": "section",
+      "line": "# Warmhole: report_generation\r"
+    },
+    "readmes_programming_system_.system_configuration_.llm_optimization_features_.function_examples_.function:_process_intent_.template:_llm_processor_.warmhole:_intent_processor_.comprehensive_example_.function:_analyze_data_.template:_data_analyzer_.warmhole:_data_processing_.warmhole:_report_generation_.quick_start_": {
       "type": "section",
       "line": "## Quick Start\r"
+    },
+    "readmes_programming_system_.system_configuration_.llm_optimization_features_.function_examples_.function:_process_intent_.template:_llm_processor_.warmhole:_intent_processor_.comprehensive_example_.function:_analyze_data_.template:_data_analyzer_.warmhole:_data_processing_.warmhole:_report_generation_.quick_start_.example_usage_": {
+      "type": "section",
+      "line": "## Example Usage\r"
+    },
+    "readmes_programming_system_.system_configuration_.llm_optimization_features_.function_examples_.function:_process_intent_.template:_llm_processor_.warmhole:_intent_processor_.comprehensive_example_.function:_analyze_data_.template:_data_analyzer_.warmhole:_data_processing_.warmhole:_report_generation_.quick_start_.example_usage_.conclusion_": {
+      "type": "section",
+      "line": "## Conclusion\r"
     }
   },
   "variables": {
-    "readme_content": "# READMEs Programming System\r\n\r\nA self-contained programming system using README.md as executable documentation, powered by LLM-driven navigation and execution.\r\n\r\n## System Configuration\r\n```yaml\r\nversion: 1.2\r\nmetadata:\r\n  standalone: true\r\n  web_compatible: true\r\n  llm_driven: true\r\n  \r\ncontext:\r\n  enabled: true\r\n  warmhole_links: true\r\n  state_tracking: true\r\n  llm_control: true\r\n  \r\nvariables:\r\n  readme_content: \"\"\r\n  previous_output: \"\"\r\n  system_state: \"\"\r\n  llm_context: {}\r\n  warmhole_history: []\r\n```\r\n\r\n## LLM Optimization Features\r\n\r\n### Context Management\r\nThe LLM maintains and updates system context including:\r\n- Current warmhole state\r\n- Execution history\r\n- System goals and constraints\r\n- Previous outputs and results\r\n\r\n### Smart Navigation\r\nThe LLM automatically:\r\n- Decides which warmholes to navigate\r\n- Determines optimal execution paths\r\n- Creates or modifies warmholes as needed\r\n- Manages state transfers between warmholes\r\n\r\n### Autonomous Execution\r\nThe LLM:\r\n- Interprets user intent\r\n- Selects appropriate functions to execute\r\n- Provides input parameters\r\n- Validates outputs and handles errors\r\n- Documents changes and decisions\r\n\r\n## Function Examples\r\n\r\n### Natural Language Processing\r\n```markdown\r\n# Function: process_intent\r\n- description: \"Process user intent and determine execution path\"\r\n- input: message: string\r\n- output: plan: object\r\n- template: llm_processor\r\n- llm_context: true\r\n```\r\n\r\n### LLM Processor Template\r\n```markdown\r\n# Template: llm_processor\r\n- input_placeholder: \"{{message}}\"\r\n- transform: |\r\n    return llm.processUserIntent(context.message);\r\n- output_format: object\r\n- requires_llm: true\r\n```\r\n\r\n### Smart Navigation Example\r\n```markdown\r\n# Warmhole: intent_processor\r\n- description: \"Entry point for processing user requests\"\r\n- state_transfer: [\"user_intent\", \"system_context\"]\r\n- condition: \"llm.shouldActivate(context)\"\r\n- llm_context: {\r\n    purpose: \"Process and understand user intent\",\r\n    capabilities: [\"intent analysis\", \"path planning\", \"context management\"]\r\n  }\r\n```\r\n\r\n## Quick Start\r\n\r\n1. Send a request to the system:\r\n```javascript\r\nconst result = await system.process(\"Process this dataset and generate a report\");\r\n```\r\n\r\nThe LLM will:\r\n1. Analyze your intent\r\n2. Plan the execution path\r\n3. Navigate through appropriate warmholes\r\n4. Execute required functions\r\n5. Return results and documentation\r\n\r\n---\r\n📝 LLM-Driven README Programming System\r\n🤖 Autonomous Navigation & Execution"
+    "readme_content": "# READMEs Programming System\r\n\r\nA self-contained programming system using README.md as executable documentation, powered by LLM-driven navigation and execution.\r\n\r\n## System Configuration\r\n```yaml\r\nversion: 1.2\r\nmetadata:\r\n  standalone: true\r\n  web_compatible: true\r\n  llm_driven: true\r\n  \r\ncontext:\r\n  enabled: true\r\n  warmhole_links: true\r\n  state_tracking: true\r\n  llm_control: true\r\n  \r\nvariables:\r\n  readme_content: \"\"\r\n  previous_output: \"\"\r\n  system_state: \"\"\r\n  llm_context: {}\r\n  warmhole_history: []\r\n```\r\n\r\n## LLM Optimization Features\r\n\r\n### Context Management\r\nThe LLM maintains and updates system context including:\r\n- Current warmhole state\r\n- Execution history\r\n- System goals and constraints\r\n- Previous outputs and results\r\n\r\n### Smart Navigation\r\nThe LLM automatically:\r\n- Decides which warmholes to navigate\r\n- Determines optimal execution paths\r\n- Creates or modifies warmholes as needed\r\n- Manages state transfers between warmholes\r\n\r\n### Autonomous Execution\r\nThe LLM:\r\n- Interprets user intent\r\n- Selects appropriate functions to execute\r\n- Provides input parameters\r\n- Validates outputs and handles errors\r\n- Documents changes and decisions\r\n\r\n## Function Examples\r\n\r\n### Natural Language Processing\r\n```markdown\r\n# Function: process_intent\r\n- description: \"Process user intent and determine execution path\"\r\n- input: message: string\r\n- output: plan: object\r\n- template: llm_processor\r\n- llm_context: true\r\n```\r\n\r\n### LLM Processor Template\r\n```markdown\r\n# Template: llm_processor\r\n- input_placeholder: \"{{message}}\"\r\n- transform: |\r\n    return llm.processUserIntent(context.message);\r\n- output_format: object\r\n- requires_llm: true\r\n```\r\n\r\n### Smart Navigation Example\r\n```markdown\r\n# Warmhole: intent_processor\r\n- description: \"Entry point for processing user requests\"\r\n- state_transfer: [\"user_intent\", \"system_context\"]\r\n- condition: \"llm.shouldActivate(context)\"\r\n- llm_context: {\r\n    purpose: \"Process and understand user intent\",\r\n    capabilities: [\"intent analysis\", \"path planning\", \"context management\"]\r\n  }\r\n```\r\n\r\n## Comprehensive Example\r\n\r\n### User Intent Processing\r\n```markdown\r\n# Function: analyze_data\r\n- description: \"Analyze the provided dataset and generate a report\"\r\n- input: dataset: string\r\n- output: report: object\r\n- template: data_analyzer\r\n- llm_context: true\r\n```\r\n\r\n### Data Analyzer Template\r\n```markdown\r\n# Template: data_analyzer\r\n- input_placeholder: \"{{dataset}}\"\r\n- transform: |\r\n    const analysis = analyzeDataset(context.dataset);\r\n    return generateReport(analysis);\r\n- output_format: object\r\n- requires_llm: true\r\n```\r\n\r\n### Warmhole Definitions\r\n```markdown\r\n# Warmhole: data_processing\r\n- description: \"Process the dataset and prepare for analysis\"\r\n- state_transfer: [\"dataset\", \"analysis_ready\"]\r\n- condition: \"llm.shouldProcessData(context)\"\r\n- llm_context: {\r\n    purpose: \"Prepare dataset for analysis\",\r\n    capabilities: [\"data cleaning\", \"data transformation\"]\r\n  }\r\n\r\n# Warmhole: report_generation\r\n- description: \"Generate a report from the analyzed data\"\r\n- state_transfer: [\"analysis_report\", \"final_report\"]\r\n- condition: \"llm.shouldGenerateReport(context)\"\r\n- llm_context: {\r\n    purpose: \"Generate comprehensive report\",\r\n    capabilities: [\"report generation\", \"data visualization\"]\r\n  }\r\n```\r\n\r\n## Quick Start\r\n\r\n1. Send a request to the system:\r\n```javascript\r\nconst result = await system.process(\"Analyze this dataset and generate a report\");\r\n```\r\n\r\nThe LLM will:\r\n1. Analyze your intent\r\n2. Plan the execution path\r\n3. Navigate through appropriate warmholes\r\n4. Execute required functions\r\n5. Return results and documentation\r\n\r\n## Example Usage\r\n\r\n### Step-by-Step Execution\r\n1. **Initialize the System**:\r\n   ```javascript\r\n   const readmeContent = loadReadmeContent();\r\n   const initResult = system_init(readmeContent);\r\n   console.log('System initialization result:', initResult);\r\n   ```\r\n\r\n2. **Process User Intent**:\r\n   ```javascript\r\n   const userIntent = \"Analyze this dataset and generate a report\";\r\n   const executionPlan = await processUserIntent(userIntent, systemState);\r\n   console.log('Execution Plan:', executionPlan);\r\n   ```\r\n\r\n3. **Execute the Plan**:\r\n   ```javascript\r\n   const executionResult = await execute(executionPlan);\r\n   console.log('Execution Result:', executionResult);\r\n   ```\r\n\r\n## Conclusion\r\n\r\nThe READMEs Programming System leverages LLM-driven navigation and execution to transform README.md files into executable documentation. By following the comprehensive example provided, users can harness the full capabilities of the system to automate complex workflows and achieve seamless integration between documentation and execution.\r\n\r\nFor more details, refer to the [Documentation Standards](doc/Rdm_standards.md) and [Parser Rules](doc/Rmd_parser_rules.md).\r\n\r\n---\r\n📝 LLM-Driven README Programming System\r\n🤖 Autonomous Navigation & Execution"
   },
+  "previousOutput": null,
   "currentContext": {
     "warmhole": "intent_processor",
     "readme_content": "# READMEs Programming System\r\n\r\nA self-contained programming system using README.md as executable documentation, powered by LLM-driven navigation and execution.\r\n\r\n## System Configuration\r\n```yaml\r\nversion: 1.2\r\nmetadata:\r\n  standalone: true\r\n  web_compatible: true\r\n  llm_driven: true\r\n  \r\ncontext:\r\n  enabled: true\r\n  warmhole_links: true\r\n  state_tracking: true\r\n  llm_control: true\r\n  \r\nvariables:\r\n  readme_content: \"\"\r\n  previous_output: \"\"\r\n  system_state: \"\"\r\n  llm_context: {}\r\n  warmhole_history: []\r\n```\r\n\r\n## LLM Optimization Features\r\n\r\n### Context Management\r\nThe LLM maintains and updates system context including:\r\n- Current warmhole state\r\n- Execution history\r\n- System goals and constraints\r\n- Previous outputs and results\r\n\r\n### Smart Navigation\r\nThe LLM automatically:\r\n- Decides which warmholes to navigate\r\n- Determines optimal execution paths\r\n- Creates or modifies warmholes as needed\r\n- Manages state transfers between warmholes\r\n\r\n### Autonomous Execution\r\nThe LLM:\r\n- Interprets user intent\r\n- Selects appropriate functions to execute\r\n- Provides input parameters\r\n- Validates outputs and handles errors\r\n- Documents changes and decisions\r\n\r\n## Function Examples\r\n\r\n### Natural Language Processing\r\n```markdown\r\n# Function: process_intent\r\n- description: \"Process user intent and determine execution path\"\r\n- input: message: string\r\n- output: plan: object\r\n- template: llm_processor\r\n- llm_context: true\r\n```\r\n\r\n### LLM Processor Template\r\n```markdown\r\n# Template: llm_processor\r\n- input_placeholder: \"{{message}}\"\r\n- transform: |\r\n    return llm.processUserIntent(context.message);\r\n- output_format: object\r\n- requires_llm: true\r\n```\r\n\r\n### Smart Navigation Example\r\n```markdown\r\n# Warmhole: intent_processor\r\n- description: \"Entry point for processing user requests\"\r\n- state_transfer: [\"user_intent\", \"system_context\"]\r\n- condition: \"llm.shouldActivate(context)\"\r\n- llm_context: {\r\n    purpose: \"Process and understand user intent\",\r\n    capabilities: [\"intent analysis\", \"path planning\", \"context management\"]\r\n  }\r\n```\r\n\r\n## Quick Start\r\n\r\n1. Send a request to the system:\r\n```javascript\r\nconst result = await system.process(\"Process this dataset and generate a report\");\r\n```\r\n\r\nThe LLM will:\r\n1. Analyze your intent\r\n2. Plan the execution path\r\n3. Navigate through appropriate warmholes\r\n4. Execute required functions\r\n5. Return results and documentation\r\n\r\n---\r\n📝 LLM-Driven README Programming System\r\n🤖 Autonomous Navigation & Execution"
@@ -87,6 +116,19 @@
         "type": "object"
       },
       "template": "llm_processor"
+    },
+    "analyze_data": {
+      "name": "analyze_data",
+      "description": "Analyze the provided dataset and generate a report",
+      "input": {
+        "name": "dataset",
+        "type": "string"
+      },
+      "output": {
+        "name": "report",
+        "type": "object"
+      },
+      "template": "data_analyzer"
     }
   },
   "templates": {
@@ -94,6 +136,12 @@
       "name": "llm_processor",
       "placeholder": "{{message}}",
       "transform": "return llm.processUserIntent(context.message);",
+      "outputFormat": "object"
+    },
+    "data_analyzer": {
+      "name": "data_analyzer",
+      "placeholder": "{{dataset}}",
+      "transform": "const analysis = analyzeDataset(context.dataset);\r\n    return generateReport(analysis);",
       "outputFormat": "object"
     }
   },
