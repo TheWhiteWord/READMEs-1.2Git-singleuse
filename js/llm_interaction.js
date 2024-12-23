@@ -1,4 +1,4 @@
-const axios = require('axios');
+const ollama = require('ollama');
 
 /**
  * Sends a message to the LLM and receives a response.
@@ -7,8 +7,11 @@ const axios = require('axios');
  */
 async function chatWithLLM(message) {
     try {
-        const response = await axios.post('https://api.example.com/llm', { request: message });
-        return response.data;
+        const response = await ollama.chat({
+            model: 'hf.co/MaziyarPanahi/Mistral-7B-Instruct-v0.3-GGUF:Q6_K',
+            messages: [{ role: 'user', content: message }]
+        });
+        return response.message.content;
     } catch (error) {
         console.error('Error interacting with LLM:', error);
         throw error;
@@ -22,8 +25,11 @@ async function chatWithLLM(message) {
  */
 async function generateCode(prompt) {
     try {
-        const response = await axios.post('https://api.llm.example.com/generate', { prompt });
-        return response.data.code;
+        const response = await ollama.generate({
+            model: 'hf.co/MaziyarPanahi/Mistral-7B-Instruct-v0.3-GGUF:Q6_K',
+            prompt: prompt
+        });
+        return response.message.content;
     } catch (error) {
         console.error('Error generating code with LLM:', error);
         return 'Error generating code.';
@@ -37,8 +43,11 @@ async function generateCode(prompt) {
  */
 async function analyzeState(state) {
     try {
-        const response = await axios.post('https://api.example.com/analyze', { state });
-        return response.data;
+        const response = await ollama.chat({
+            model: 'hf.co/MaziyarPanahi/Mistral-7B-Instruct-v0.3-GGUF:Q6_K',
+            messages: [{ role: 'user', content: `Analyze the following state: ${JSON.stringify(state)}` }]
+        });
+        return response.message.content;
     } catch (error) {
         console.error('Error analyzing state:', error);
         throw error;
