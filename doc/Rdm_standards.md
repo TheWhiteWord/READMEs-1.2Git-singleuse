@@ -149,7 +149,6 @@ One-line overview
 - description: "Warmhole description"
 - state_transfer: ["state_variable1", "state_variable2"]
 - condition: "{{condition}}"
-- next_warmhole: "next_warmhole_name"
 ```
 
 ### Example: State-Aware Warmhole
@@ -158,7 +157,6 @@ One-line overview
 - description: "Processes data and transfers state"
 - state_transfer: ["data_path", "dataset_format"]
 - condition: "{{system_state}} == 'processing'"
-- next_warmhole: "data_analysis"
 ```
 
 ### LLM-Powered Warmhole Management
