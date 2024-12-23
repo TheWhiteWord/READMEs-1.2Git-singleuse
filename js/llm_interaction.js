@@ -7,11 +7,11 @@ const axios = require('axios');
  */
 async function chatWithLLM(message) {
     try {
-        const response = await axios.post('https://api.llm.example.com/chat', { message });
-        return response.data.reply;
+        const response = await axios.post('https://api.example.com/llm', { request: message });
+        return response.data;
     } catch (error) {
-        console.error('Error chatting with LLM:', error);
-        return 'Error communicating with LLM.';
+        console.error('Error interacting with LLM:', error);
+        throw error;
     }
 }
 
@@ -37,11 +37,11 @@ async function generateCode(prompt) {
  */
 async function analyzeState(state) {
     try {
-        const response = await axios.post('https://api.llm.example.com/analyze', { state });
-        return response.data.feedback;
+        const response = await axios.post('https://api.example.com/analyze', { state });
+        return response.data;
     } catch (error) {
-        console.error('Error analyzing state with LLM:', error);
-        return 'Error analyzing state.';
+        console.error('Error analyzing state:', error);
+        throw error;
     }
 }
 

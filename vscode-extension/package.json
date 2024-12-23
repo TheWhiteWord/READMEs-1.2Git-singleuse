@@ -29,11 +29,12 @@
         "test": "node ./test/runTest.js"
     },
     "dependencies": {
-        "vscode": "^1.1.37",
-        "fs-extra": "^10.0.0"
+        "axios": "^1.7.9",
+        "fs-extra": "^10.0.0",
+        "vscode": "^1.1.37"
     },
     "devDependencies": {
-        "@types/vscode": "^1.80.0",
-        "@types/node": "^16.x"
+        "@types/node": "^16.x",
+        "@types/vscode": "^1.80.0"
     }
 }
