@@ -338,10 +338,10 @@ async function executeLLMPlan(plan) {
     for (const step of plan.steps) {
         switch (step.type) {
             case 'navigate':
-                results.push(await navigateWarmholeLLM(step.warmhole, step.context));
+                results.push(await execute(step.warmhole));
                 break;
             case 'execute':
-                results.push(await executeFunctionLLM(step.function, step.input));
+                results.push(await execute(step.function, step.input));
                 break;
             case 'optimize':
                 results.push(await optimizeWarmholeLLM(step.warmhole, step.optimization));
