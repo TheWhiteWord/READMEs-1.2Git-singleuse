@@ -1,4 +1,4 @@
-const { system_init, execute, navigateWarmhole, systemState } = require('./core_logic');
+const { system_init, execute, navigateWarmhole, systemState } = require('../core_logic');
 
 // Test data
 const testMd = `

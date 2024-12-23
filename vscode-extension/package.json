@@ -21,5 +21,14 @@
                 "title": "READMEs: Navigate Warmhole"
             }
         ]
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/vscode": "^1.96.0"
     }
 }
