@@ -90,7 +90,11 @@ async function processUserIntent(readmeContent, systemState) {
             plan = JSON.parse(response.message.content);
         } catch (error) {
             console.error('Received plain text response from LLM:', response.message.content);
-            throw new Error('LLM response is not valid JSON');
+            // Handle plain text response appropriately
+            return {
+                steps: [],
+                userMessage: response.message.content
+            };
         }
         if (!plan.steps) {
             throw new Error('Invalid plan format from LLM');

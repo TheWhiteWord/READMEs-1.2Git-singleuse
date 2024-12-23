@@ -349,6 +349,8 @@ async function executeLLMPlan(plan) {
             case 'optimize':
                 results.push(await optimizeWarmholeLLM(step.warmhole, step.optimization));
                 break;
+            default:
+                throw new Error(`Unknown step type: ${step.type}`);
         }
     }
 
