@@ -250,62 +250,26 @@ async function executeTemplateDef(templateDef, context) {
         }
     };
 
-    // If the template requires LLM, call the LLM processing function
-    if (templateDef.requires_llm) {
-        const llmResponse = await chatWithLLM(JSON.stringify({
-            type: 'process_template',
-            template: templateDef.name,
-            input: context,
-            systemState: systemState
-        }));
+    // Call the LLM processing function
+    const llmResponse = await processUserIntent(context.message, systemState);
 
-        let parsedResponse;
-        try {
-            parsedResponse = JSON.parse(llmResponse);
-        } catch (error) {
-            logSystem('Received plain text response from LLM', { llmResponse });
-            parsedResponse = { result: llmResponse };
-        }
-
-        if (parsedResponse.error) {
-            throw new Error(parsedResponse.error);
-        }
-
-        return {
-            status: "success",
-            result: parsedResponse.result,
-            format: templateDef.outputFormat
-        };
-    }
-
-    // Replace placeholders in transform
-    let code = templateDef.transform;
-    Object.entries(context).forEach(([key, value]) => {
-        code = code.replace(new RegExp(`{{${key}}}`, 'g'), value);
-    });
-    
-    // Execute transformed code
+    let parsedResponse;
     try {
-        // Create a proper function that returns the result
-        code = `
-            return (function(context) { 
-                ${code}
-            })(arguments[0]);
-        `;
-        const result = new Function('context', code)(context);
-        return {
-            status: "success",
-            result,
-            format: templateDef.outputFormat
-        };
+        parsedResponse = JSON.parse(llmResponse);
     } catch (error) {
-        logSystem('Template execution failed', { error: error.message, code });
-        return {
-            status: "error",
-            error: error.message,
-            format: "error"
-        };
+        logSystem('Received plain text response from LLM', { llmResponse });
+        parsedResponse = { result: llmResponse };
     }
+
+    if (parsedResponse.error) {
+        throw new Error(parsedResponse.error);
+    }
+
+    return {
+        status: "success",
+        result: parsedResponse.result,
+        format: templateDef.outputFormat
+    };
 }
 
 /**
