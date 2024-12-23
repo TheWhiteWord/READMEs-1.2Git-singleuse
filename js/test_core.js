@@ -26,19 +26,23 @@ console.log('Starting tests...');
 
 // Test system initialization
 try {
-    debugger; // Add breakpoint here
+    debugger; // Breakpoint 1: Before initialization
     const initResult = system_init(testMd);
+    debugger; // Breakpoint 2: After initialization
     console.log('Initialization test:', initResult);
 } catch (error) {
-    debugger; // Add breakpoint for errors
+    debugger; // Breakpoint 3: If error occurs
     console.error('Initialization failed:', error);
 }
 
 // Test function execution
 try {
+    debugger; // Breakpoint 4: Before function execution
     const execResult = execute('test_function', { input: 'hello world' });
+    debugger; // Breakpoint 5: After function execution
     console.log('Execution test:', execResult);
 } catch (error) {
+    debugger; // Breakpoint 6: If error occurs
     console.error('Execution failed:', error);
 }
 
