@@ -1,4 +1,5 @@
 const cacheMetadata = require('./cache_metadata');
+const { chatWithLLM, analyzeState } = require('./llm_interaction');
 const fs = require('fs');
 
 // Global state object with complete structure
@@ -10,7 +11,13 @@ const systemState = {
     warmholes: {},
     functions: {},
     templates: {},
-    cache: {}
+    cache: {},
+    llmContext: {
+        history: [],
+        goals: [],
+        decisions: [],
+        optimizations: []
+    }
 };
 
 // Logging functionality
@@ -283,6 +290,175 @@ function navigateWarmhole(id) {
     };
 }
 
+/**
+ * Process user intent and determine execution path
+ */
+async function processUserIntent(message, context = {}) {
+    logSystem('Processing user intent', { message, context });
+    
+    try {
+        // Ask LLM to analyze intent and plan execution
+        const plan = await chatWithLLM(JSON.stringify({
+            type: 'analyze_intent',
+            message,
+            context: {
+                systemState: context.systemState,
+                currentWarmhole: context.activeWarmhole,
+                availableFunctions: Object.keys(systemState.functions),
+                availableWarmholes: Object.keys(systemState.warmholes)
+            }
+        }));
+
+        // Execute the plan
+        return await executeLLMPlan(JSON.parse(plan));
+    } catch (error) {
+        logSystem('Intent processing failed', { error: error.message });
+        throw error;
+    }
+}
+
+/**
+ * Execute plan provided by LLM
+ */
+async function executeLLMPlan(plan) {
+    logSystem('Executing LLM plan', plan);
+    
+    const results = [];
+    for (const step of plan.steps) {
+        switch (step.type) {
+            case 'navigate':
+                results.push(await navigateWarmholeLLM(step.warmhole, step.context));
+                break;
+            case 'execute':
+                results.push(await executeFunctionLLM(step.function, step.input));
+                break;
+            case 'optimize':
+                results.push(await optimizeWarmholeLLM(step.warmhole, step.optimization));
+                break;
+        }
+    }
+
+    return {
+        status: 'complete',
+        message: plan.userMessage,
+        results,
+        activeWarmhole: systemState.currentContext?.warmhole
+    };
+}
+
+/**
+ * LLM-driven warmhole navigation
+ */
+async function navigateWarmholeLLM(warmholeId, context = {}) {
+    logSystem(`LLM navigating to warmhole: ${warmholeId}`, context);
+    
+    const warmhole = systemState.warmholes[warmholeId];
+    if (!warmhole) {
+        throw new Error(`Warmhole not found: ${warmholeId}`);
+    }
+
+    // Let LLM evaluate navigation condition
+    const shouldNavigate = await chatWithLLM(JSON.stringify({
+        type: 'evaluate_condition',
+        warmhole: warmholeId,
+        condition: warmhole.condition,
+        context: {
+            ...context,
+            systemState: systemState.variables,
+            currentContext: systemState.currentContext
+        }
+    }));
+
+    if (!JSON.parse(shouldNavigate).allowed) {
+        // Let LLM suggest alternative warmhole
+        const alternative = await chatWithLLM(JSON.stringify({
+            type: 'suggest_alternative',
+            rejected: warmholeId,
+            context: systemState.currentContext
+        }));
+        
+        const alternativeWarmhole = JSON.parse(alternative).suggestion;
+        if (alternativeWarmhole) {
+            return navigateWarmholeLLM(alternativeWarmhole, context);
+        }
+        
+        throw new Error(`Navigation to ${warmholeId} denied by LLM with no alternative`);
+    }
+
+    // Perform navigation with state transfer
+    systemState.previousOutput = systemState.currentContext?.output;
+    systemState.currentContext = {
+        warmhole: warmholeId,
+        ...context,
+        ...systemState.variables
+    };
+
+    // Update state based on state_transfer
+    if (warmhole.state_transfer) {
+        warmhole.state_transfer.forEach(variable => {
+            if (context[variable] !== undefined) {
+                systemState.variables[variable] = context[variable];
+            }
+        });
+    }
+
+    return {
+        status: 'navigated',
+        to: warmholeId,
+        stateTransferred: warmhole.state_transfer
+    };
+}
+
+/**
+ * LLM-driven function execution
+ */
+async function executeFunctionLLM(name, input) {
+    logSystem(`LLM executing function: ${name}`, input);
+    
+    // Let LLM validate and potentially modify input
+    const validatedInput = await chatWithLLM(JSON.stringify({
+        type: 'validate_input',
+        function: name,
+        input,
+        context: systemState.currentContext
+    }));
+
+    return execute(name, JSON.parse(validatedInput));
+}
+
+/**
+ * LLM-driven warmhole optimization
+ */
+async function optimizeWarmholeLLM(warmholeId, optimization) {
+    logSystem(`LLM optimizing warmhole: ${warmholeId}`, optimization);
+    
+    const warmhole = systemState.warmholes[warmholeId];
+    if (!warmhole) {
+        throw new Error(`Warmhole not found: ${warmholeId}`);
+    }
+
+    // Let LLM suggest optimizations
+    const optimizationPlan = await chatWithLLM(JSON.stringify({
+        type: 'optimize_warmhole',
+        warmhole,
+        optimization,
+        context: systemState.currentContext
+    }));
+
+    const plan = JSON.parse(optimizationPlan);
+    
+    // Apply optimizations
+    if (plan.modifications) {
+        Object.assign(warmhole, plan.modifications);
+    }
+
+    return {
+        status: 'optimized',
+        warmhole: warmholeId,
+        optimizations: plan.modifications
+    };
+}
+
 module.exports = {
     system_init,
     execute,
@@ -292,5 +468,10 @@ module.exports = {
     parseFunctionDef,
     parseTemplateDef,
     parseWarmholeDef,
-    logSystem
+    logSystem,
+    processUserIntent,
+    executeLLMPlan,
+    navigateWarmholeLLM,
+    executeFunctionLLM,
+    optimizeWarmholeLLM
 };
