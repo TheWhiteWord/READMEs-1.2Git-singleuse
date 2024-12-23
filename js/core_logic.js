@@ -135,7 +135,7 @@ function system_init(readmeContent) {
 /**
  * Execute a function or template
  */
-async function execute(name, context = {}) {
+async function execute(name, context = {}, llm = true) {
     logSystem(`Executing ${name}`, { context });
 
     try {
@@ -145,18 +145,26 @@ async function execute(name, context = {}) {
         // Check if function exists
         const fn = systemState.functions[name];
         if (fn) {
-            // Pass user inputs and system state to the LLM
-            const llmResponse = await chatWithLLM(JSON.stringify({
-                type: 'execute_function',
-                function: name,
-                input: context,
-                systemState: systemState
-            }));
+            // Pass user inputs and system state to the LLM if llm is true
+            let parsedResponse = { input: context };
+            if (llm) {
+                const llmResponse = await chatWithLLM(JSON.stringify({
+                    type: 'execute_function',
+                    function: name,
+                    input: context,
+                    systemState: systemState
+                }));
 
-            // Process the LLM response
-            const parsedResponse = JSON.parse(llmResponse);
-            if (parsedResponse.error) {
-                throw new Error(parsedResponse.error);
+                try {
+                    parsedResponse = JSON.parse(llmResponse);
+                } catch (error) {
+                    logSystem('Received plain text response from LLM', { llmResponse });
+                    parsedResponse = { input: { message: llmResponse } };
+                }
+
+                if (parsedResponse.error) {
+                    throw new Error(parsedResponse.error);
+                }
             }
 
             // Execute function with context
@@ -170,18 +178,26 @@ async function execute(name, context = {}) {
         // Check if template exists
         const template = systemState.templates[name];
         if (template) {
-            // Pass user inputs and system state to the LLM
-            const llmResponse = await chatWithLLM(JSON.stringify({
-                type: 'execute_template',
-                template: name,
-                input: context,
-                systemState: systemState
-            }));
+            // Pass user inputs and system state to the LLM if llm is true
+            let parsedResponse = { input: context };
+            if (llm) {
+                const llmResponse = await chatWithLLM(JSON.stringify({
+                    type: 'execute_template',
+                    template: name,
+                    input: context,
+                    systemState: systemState
+                }));
 
-            // Process the LLM response
-            const parsedResponse = JSON.parse(llmResponse);
-            if (parsedResponse.error) {
-                throw new Error(parsedResponse.error);
+                try {
+                    parsedResponse = JSON.parse(llmResponse);
+                } catch (error) {
+                    logSystem('Received plain text response from LLM', { llmResponse });
+                    parsedResponse = { input: { message: llmResponse } };
+                }
+
+                if (parsedResponse.error) {
+                    throw new Error(parsedResponse.error);
+                }
             }
 
             // Execute template with context

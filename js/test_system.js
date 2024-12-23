@@ -19,10 +19,12 @@ function initializeSystem() {
 }
 
 // Test function execution
-function testFunctionExecution() {
+async function testFunctionExecution() {
     try {
-        const execResult = execute('process_intent', { message: 'hello world' });
+        loadState(); // Load the state before execution
+        const execResult = await execute('process_intent', { message: 'hello world' });
         console.log('Function execution result:', execResult);
+        saveState(); // Save the state after execution
     } catch (error) {
         console.error('Function execution failed:', error);
     }
@@ -31,8 +33,10 @@ function testFunctionExecution() {
 // Test warmhole navigation
 function testWarmholeNavigation() {
     try {
+        loadState(); // Load the state before navigation
         const navResult = navigateWarmhole('intent_processor');
         console.log('Warmhole navigation result:', navResult);
+        saveState(); // Save the state after navigation
     } catch (error) {
         console.error('Warmhole navigation failed:', error);
     }
@@ -41,26 +45,27 @@ function testWarmholeNavigation() {
 // Test user intent processing
 async function testUserIntentProcessing() {
     try {
+        loadState(); // Load the state before processing user intent
         const result = await processUserIntent('Process this dataset and generate a report', {
             systemState,
             activeWarmhole: 'intent_processor'
         });
         console.log('User intent processing result:', result);
+        saveState(); // Save the state after processing user intent
     } catch (error) {
         console.error('User intent processing failed:', error);
     }
 }
 
 // Run all tests
-function runTests() {
+async function runTests() {
     loadState();
     initializeSystem();
-    testFunctionExecution();
+    await testFunctionExecution();
     testWarmholeNavigation();
-    testUserIntentProcessing().then(() => {
-        console.log('All tests completed');
-        saveState();
-    });
+    await testUserIntentProcessing();
+    console.log('All tests completed');
+    saveState();
 }
 
 runTests();
