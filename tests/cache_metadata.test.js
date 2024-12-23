@@ -9,9 +9,9 @@ describe('cacheMetadata', () => {
 ### LLM Optimization Features
 `;
         const expectedMetadata = {
-            "readmes_programming_system_": { type: "section", line: "# READMEs Programming System" },
-            "readmes_programming_system_.system_configuration_": { type: "section", line: "## System Configuration" },
-            "readmes_programming_system_.system_configuration_.llm_optimization_features_": { type: "section", line: "### LLM Optimization Features" }
+            "readmes_programming_system": { type: "section", line: "# READMEs Programming System" },
+            "readmes_programming_system_system_configuration": { type: "section", line: "## System Configuration" },
+            "readmes_programming_system_system_configuration_llm_optimization_features": { type: "section", line: "### LLM Optimization Features" }
         };
         const metadata = cacheMetadata(mdContent);
         assert.deepStrictEqual(metadata, expectedMetadata);

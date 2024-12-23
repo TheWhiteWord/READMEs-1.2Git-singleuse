@@ -5,7 +5,7 @@
  * @returns {Object|null} - The parsed header and ID, or null if not a header.
  */
 function parseHeader(line, parentId) {
-    let id = parentId ? `${parentId}.` : '';
+    let id = parentId ? `${parentId}_` : '';
     if (line.startsWith('# ')) {
         id += line.replace('# ', '').toLowerCase().replace(/\s+/g, '_');
         return { header: line.replace('# ', ''), id: id };
