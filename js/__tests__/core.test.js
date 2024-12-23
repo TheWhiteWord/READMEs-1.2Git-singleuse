@@ -43,38 +43,63 @@ function resetStateFile() {
 console.log('Starting tests...');
 
 // Test system initialization
-try {
+test('System Initialization', () => {
     resetStateFile();
     const initResult = system_init(testMd);
+    expect(initResult.status).toBe('initialized');
+    expect(initResult.functions).toBe(1);
+    expect(initResult.templates).toBe(1);
+    expect(initResult.warmholes).toBe(2);
     console.log('Initialization test:', initResult);
-} catch (error) {
-    console.error('Initialization failed:', error);
-}
+});
 
 // Test function execution
-try {
+test('Function Execution', () => {
     const execResult = execute('test_function', { input: 'hello world' });
+    expect(execResult.status).toBe('success');
+    expect(execResult.result).toBe('HELLO WORLD');
+    expect(execResult.format).toBe('string');
     console.log('Execution test:', execResult);
-} catch (error) {
-    console.error('Execution failed:', error);
-}
+});
 
 // Test warmhole navigation
-try {
+test('Warmhole Navigation', () => {
     const navResult = navigateWarmhole('test_warmhole');
+    expect(navResult.status).toBe('navigated');
+    expect(navResult.to).toBe('next_test');
+    expect(systemState.variables.text).toBe('hello world');
     console.log('Navigation test:', navResult);
-} catch (error) {
-    console.error('Navigation failed:', error);
-}
+});
 
 // Test state persistence
-try {
+test('State Persistence', () => {
     saveState();
     loadState();
+    expect(systemState.variables.text).toBe('hello world');
     console.log('State persistence test:', systemState);
-} catch (error) {
-    console.error('State persistence failed:', error);
-}
+});
+
+// Test LLM-driven execution (mocked)
+test('LLM-Driven Execution', async () => {
+    const mockChatWithLLM = jest.fn().mockResolvedValue(JSON.stringify({
+        steps: [
+            { type: 'navigate', warmhole: 'test_warmhole', context: { text: 'hello world' } },
+            { type: 'execute', function: 'test_function', input: { text: 'hello world' } }
+        ],
+        userMessage: 'Execution complete'
+    }));
+    const originalChatWithLLM = require('../llm_interaction').chatWithLLM;
+    require('../llm_interaction').chatWithLLM = mockChatWithLLM;
+
+    const result = await processUserIntent('Process text', { systemState, activeWarmhole: 'test_warmhole' });
+    expect(result.status).toBe('complete');
+    expect(result.message).toBe('Execution complete');
+    expect(result.results.length).toBe(2);
+
+    // Restore original function
+    require('../llm_interaction').chatWithLLM = originalChatWithLLM;
+    console.log('LLM-Driven Execution test:', result);
+});
 
 // Print final state
 console.log('Final system state:', systemState);

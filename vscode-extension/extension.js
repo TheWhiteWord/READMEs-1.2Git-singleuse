@@ -1,10 +1,9 @@
 const vscode = require('vscode');
-const { system_init, processUserIntent, getSystemContext } = require('../js/core_logic');
+const { system_init, execute, navigateWarmhole, processUserIntent, loadState, saveState, systemState } = require('../js/core_logic');
 const fs = require('fs');
 const path = require('path');
 
 // Track active system state
-let systemState = null;
 let statusBarItem;
 let activeWarmhole = null;
 
@@ -38,9 +37,11 @@ function activate(context) {
     vscode.workspace.onDidOpenTextDocument(doc => {
         if (doc.languageId === 'markdown') {
             try {
-                systemState = system_init(doc.getText());
+                loadState();
+                const initResult = system_init(doc.getText());
                 statusBarItem.text = `READMEs: ${Object.keys(systemState.functions).length} functions`;
                 highlightWarmholes(vscode.window.activeTextEditor, warmholeDecoration);
+                console.log('Initialization result:', initResult);
             } catch (error) {
                 vscode.window.showErrorMessage(`Initialization failed: ${error.message}`);
             }
@@ -114,7 +115,32 @@ function activate(context) {
         }
     });
 
-    context.subscriptions.push(statusBarItem, hoverProvider, executeCommand);
+    // Register navigate command
+    let navigateCommand = vscode.commands.registerCommand('readmes.navigate', async () => {
+        if (!systemState) {
+            vscode.window.showErrorMessage('System not initialized');
+            return;
+        }
+
+        // Get warmhole name via input box
+        const warmholeName = await vscode.window.showInputBox({
+            placeHolder: 'Enter warmhole name',
+            prompt: 'Navigate to a warmhole'
+        });
+
+        if (warmholeName) {
+            try {
+                const navResult = navigateWarmhole(warmholeName);
+                statusBarItem.text = `READMEs: Navigated to ${warmholeName}`;
+                vscode.window.showInformationMessage(`Navigated to warmhole: ${warmholeName}`);
+                console.log('Navigation result:', navResult);
+            } catch (error) {
+                vscode.window.showErrorMessage(`Navigation failed: ${error.message}`);
+            }
+        }
+    });
+
+    context.subscriptions.push(statusBarItem, hoverProvider, executeCommand, navigateCommand);
 }
 
 function highlightWarmholes(editor, decoration) {
