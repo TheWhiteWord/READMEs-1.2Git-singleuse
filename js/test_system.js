@@ -57,6 +57,18 @@ async function testUserIntentProcessing() {
     }
 }
 
+// Test LLM interaction
+async function testLLMInteraction() {
+    try {
+        loadState(); // Load the state before LLM interaction
+        const llmResponse = await execute('process_intent', { message: 'test LLM interaction' }, true);
+        console.log('LLM interaction result:', llmResponse);
+        saveState(); // Save the state after LLM interaction
+    } catch (error) {
+        console.error('LLM interaction failed:', error);
+    }
+}
+
 // Run all tests
 async function runTests() {
     loadState();
@@ -64,6 +76,7 @@ async function runTests() {
     await testFunctionExecution();
     testWarmholeNavigation();
     await testUserIntentProcessing();
+    await testLLMInteraction();
     console.log('All tests completed');
     saveState();
 }

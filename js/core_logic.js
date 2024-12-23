@@ -233,7 +233,7 @@ function executeFunctionDef(fnDef, context) {
 /**
  * Execute template definition
  */
-function executeTemplateDef(templateDef, context) {
+async function executeTemplateDef(templateDef, context) {
     // Include the llm object in the context
     context.llm = {
         processUserIntent: (message) => {
@@ -241,6 +241,34 @@ function executeTemplateDef(templateDef, context) {
             return `Processed intent: ${message}`;
         }
     };
+
+    // If the template requires LLM, call the LLM processing function
+    if (templateDef.requires_llm) {
+        const llmResponse = await chatWithLLM(JSON.stringify({
+            type: 'process_template',
+            template: templateDef.name,
+            input: context,
+            systemState: systemState
+        }));
+
+        let parsedResponse;
+        try {
+            parsedResponse = JSON.parse(llmResponse);
+        } catch (error) {
+            logSystem('Received plain text response from LLM', { llmResponse });
+            parsedResponse = { result: llmResponse };
+        }
+
+        if (parsedResponse.error) {
+            throw new Error(parsedResponse.error);
+        }
+
+        return {
+            status: "success",
+            result: parsedResponse.result,
+            format: templateDef.outputFormat
+        };
+    }
 
     // Replace placeholders in transform
     let code = templateDef.transform;
@@ -275,7 +303,7 @@ function executeTemplateDef(templateDef, context) {
 /**
  * Navigate through warmhole
  */
-function navigateWarmhole(id) {
+async function navigateWarmhole(id) {
     logSystem(`Navigating warmhole: ${id}`);
     
     // Load the state before navigation
@@ -303,9 +331,29 @@ function navigateWarmhole(id) {
     // Store previous output
     systemState.previousOutput = systemState.currentContext?.output;
     
+    // Ask LLM to decide the next warmhole
+    const llmResponse = await chatWithLLM(JSON.stringify({
+        type: 'decide_next_warmhole',
+        currentWarmhole: id,
+        context: systemState.currentContext,
+        systemState: systemState
+    }));
+
+    let nextWarmhole;
+    try {
+        nextWarmhole = JSON.parse(llmResponse).next_warmhole;
+    } catch (error) {
+        logSystem('Received plain text response from LLM', { llmResponse });
+        nextWarmhole = llmResponse;
+    }
+
+    if (!nextWarmhole) {
+        throw new Error('LLM did not provide a next warmhole');
+    }
+
     // Update current context
     systemState.currentContext = {
-        warmhole: warmhole.next_warmhole,
+        warmhole: nextWarmhole,
         ...systemState.variables
     };
     
@@ -313,7 +361,7 @@ function navigateWarmhole(id) {
     saveState();
     return {
         status: "navigated",
-        to: warmhole.next_warmhole,
+        to: nextWarmhole,
         state_transferred: warmhole.state_transfer
     };
 }
