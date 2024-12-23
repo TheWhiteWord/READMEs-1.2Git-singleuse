@@ -1,4 +1,6 @@
-const { system_init, execute, navigateWarmhole, systemState } = require('../core_logic');
+const { system_init, execute, navigateWarmhole, systemState, saveState, loadState } = require('../core_logic');
+const fs = require('fs');
+const path = require('path');
 
 // Test data
 const testMd = `
@@ -11,7 +13,7 @@ const testMd = `
 # Template: test_template
 - input_placeholder: "{{text}}"
 - transform: |
-    return context.text.toUpperCase()
+    return context.text.toUpperCase();
 - output_format: string
 
 # Warmhole: test_warmhole
@@ -19,30 +21,41 @@ const testMd = `
 - state_transfer: ["text"]
 - condition: "true"
 - next_warmhole: "next_test"
+
+# Warmhole: next_test
+- description: "Next test warmhole"
+- state_transfer: []
+- condition: "true"
+- next_warmhole: ""
 `;
+
+// Path to the state file
+const stateFilePath = path.join(__dirname, '../state.json');
+
+// Helper function to reset state file
+function resetStateFile() {
+    if (fs.existsSync(stateFilePath)) {
+        fs.unlinkSync(stateFilePath);
+    }
+}
 
 // Run tests
 console.log('Starting tests...');
 
 // Test system initialization
 try {
-    debugger; // Breakpoint 1: Before initialization
+    resetStateFile();
     const initResult = system_init(testMd);
-    debugger; // Breakpoint 2: After initialization
     console.log('Initialization test:', initResult);
 } catch (error) {
-    debugger; // Breakpoint 3: If error occurs
     console.error('Initialization failed:', error);
 }
 
 // Test function execution
 try {
-    debugger; // Breakpoint 4: Before function execution
     const execResult = execute('test_function', { input: 'hello world' });
-    debugger; // Breakpoint 5: After function execution
     console.log('Execution test:', execResult);
 } catch (error) {
-    debugger; // Breakpoint 6: If error occurs
     console.error('Execution failed:', error);
 }
 
@@ -52,6 +65,15 @@ try {
     console.log('Navigation test:', navResult);
 } catch (error) {
     console.error('Navigation failed:', error);
+}
+
+// Test state persistence
+try {
+    saveState();
+    loadState();
+    console.log('State persistence test:', systemState);
+} catch (error) {
+    console.error('State persistence failed:', error);
 }
 
 // Print final state

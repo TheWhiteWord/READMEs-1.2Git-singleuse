@@ -2,6 +2,7 @@ const cacheMetadata = require('./cache_metadata');
 const { chatWithLLM, analyzeState } = require('./llm_interaction');
 const { extractByRegex, parseFunctionDef, parseTemplateDef, parseWarmholeDef } = require('./parse_utils');
 const fs = require('fs');
+const path = require('path');
 
 // Global state object with complete structure
 const systemState = {
@@ -21,6 +22,9 @@ const systemState = {
     }
 };
 
+// Path to the state file
+const stateFilePath = path.join(__dirname, 'state.json');
+
 // Logging functionality
 function logSystem(message, data = null) {
     const timestamp = new Date().toISOString();
@@ -35,6 +39,33 @@ function logSystem(message, data = null) {
         fs.appendFileSync('system.log', logMessage + '\n');
     } catch (error) {
         console.error('Failed to write to log file:', error);
+    }
+}
+
+/**
+ * Save the system state to a file
+ */
+function saveState() {
+    try {
+        fs.writeFileSync(stateFilePath, JSON.stringify(systemState, null, 2));
+        logSystem('System state saved successfully');
+    } catch (error) {
+        logSystem('Failed to save system state', { error: error.message });
+    }
+}
+
+/**
+ * Load the system state from a file
+ */
+function loadState() {
+    try {
+        if (fs.existsSync(stateFilePath)) {
+            const stateData = fs.readFileSync(stateFilePath, 'utf8');
+            Object.assign(systemState, JSON.parse(stateData));
+            logSystem('System state loaded successfully');
+        }
+    } catch (error) {
+        logSystem('Failed to load system state', { error: error.message });
     }
 }
 
@@ -90,6 +121,7 @@ function system_init(readmeContent) {
         };
         
         logSystem('System initialized successfully', stats);
+        saveState();
         return {
             status: "initialized",
             ...stats
@@ -111,14 +143,18 @@ function execute(name, context = {}) {
         const fn = systemState.functions[name];
         if (fn) {
             // Execute function with context
-            return executeFunctionDef(fn, context);
+            const result = executeFunctionDef(fn, context);
+            saveState();
+            return result;
         }
         
         // Check if template exists
         const template = systemState.templates[name];
         if (template) {
             // Execute template with context
-            return executeTemplateDef(template, context);
+            const result = executeTemplateDef(template, context);
+            saveState();
+            return result;
         }
         
         throw new Error(`No function or template found with name: ${name}`);
@@ -211,6 +247,7 @@ function navigateWarmhole(id) {
         ...systemState.variables
     };
     
+    saveState();
     return {
         status: "navigated",
         to: warmhole.next_warmhole,
@@ -238,7 +275,9 @@ async function processUserIntent(message, context = {}) {
         }));
 
         // Execute the plan
-        return await executeLLMPlan(JSON.parse(plan));
+        const result = await executeLLMPlan(JSON.parse(plan));
+        saveState();
+        return result;
     } catch (error) {
         logSystem('Intent processing failed', { error: error.message });
         throw error;
@@ -330,6 +369,7 @@ async function navigateWarmholeLLM(warmholeId, context = {}) {
         });
     }
 
+    saveState();
     return {
         status: 'navigated',
         to: warmholeId,
@@ -351,7 +391,9 @@ async function executeFunctionLLM(name, input) {
         context: systemState.currentContext
     }));
 
-    return execute(name, JSON.parse(validatedInput));
+    const result = execute(name, JSON.parse(validatedInput));
+    saveState();
+    return result;
 }
 
 /**
@@ -380,6 +422,7 @@ async function optimizeWarmholeLLM(warmholeId, optimization) {
         Object.assign(warmhole, plan.modifications);
     }
 
+    saveState();
     return {
         status: 'optimized',
         warmhole: warmholeId,
@@ -398,5 +441,7 @@ module.exports = {
     executeLLMPlan,
     navigateWarmholeLLM,
     executeFunctionLLM,
-    optimizeWarmholeLLM
+    optimizeWarmholeLLM,
+    saveState,
+    loadState
 };

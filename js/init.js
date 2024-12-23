@@ -14,6 +14,9 @@ function loadAllMarkdownFiles() {
     return allContent;
 }
 
+// Load system state
+core.loadState();
+
 // Initialize system
 const content = loadAllMarkdownFiles();
 const result = core.system_init(content);
