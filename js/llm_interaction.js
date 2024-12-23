@@ -11,7 +11,7 @@ async function chatWithLLM(message) {
             model: 'hf.co/MaziyarPanahi/Mistral-7B-Instruct-v0.3-GGUF:Q6_K',
             messages: [{ role: 'user', content: message }]
         });
-        return response.message.content;
+        return response.messages[0].content;
     } catch (error) {
         console.error('Error interacting with LLM:', error);
         throw error;
@@ -29,7 +29,7 @@ async function generateCode(prompt) {
             model: 'hf.co/MaziyarPanahi/Mistral-7B-Instruct-v0.3-GGUF:Q6_K',
             prompt: prompt
         });
-        return response.message.content;
+        return response.messages[0].content;
     } catch (error) {
         console.error('Error generating code with LLM:', error);
         return 'Error generating code.';
@@ -47,7 +47,7 @@ async function analyzeState(state) {
             model: 'hf.co/MaziyarPanahi/Mistral-7B-Instruct-v0.3-GGUF:Q6_K',
             messages: [{ role: 'user', content: `Analyze the following state: ${JSON.stringify(state)}` }]
         });
-        return response.message.content;
+        return response.messages[0].content;
     } catch (error) {
         console.error('Error analyzing state:', error);
         throw error;
