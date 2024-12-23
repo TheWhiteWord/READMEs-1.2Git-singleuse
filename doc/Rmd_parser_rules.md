@@ -48,7 +48,7 @@
 ```markdown
 - input_placeholder: "{{md}}"
 - transform: |
-    return execute_regex(md, '# Warmhole: (\\w+)\\n- description: "([^"]+)"\\n- state_transfer: \\[([^\\]]+)\\]\\n- condition: "([^"]+)"\\n- next_warmhole: "([^"]+)"(?:\\n- optimization: "([^"]+)")?(?:\\n- semantic_link: "([^"]+)")?(?:\\n- auto_document: (true|false))?');
+    return execute_regex(md, '# Warmhole: (\\w+)\\n- description: "([^"]+)"\\n- state_transfer: \\[([^\\]]+)\\]\\n- condition: "([^"]+)"(?:\\n- optimization: "([^"]+)")?(?:\\n- semantic_link: "([^"]+)")?(?:\\n- auto_document: (true|false))?');
 - output_format: array
 ```
 
@@ -212,3 +212,9 @@
     return cacheMetadata(md);
 - output_format: object
 ```
+
+## Cross-References
+- [Documentation Standards](Rdm_standards.md)
+- [System Documentation](Rdm_documentation.md)
+- [README](../README.md)
+- [Example Library](../my_first_library.md)

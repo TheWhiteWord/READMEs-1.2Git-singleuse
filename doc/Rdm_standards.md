@@ -167,7 +167,6 @@ One-line overview
 - description: "Warmhole description"
 - state_transfer: ["state_variable1", "state_variable2"]
 - condition: "{{condition}}"
-- next_warmhole: "next_warmhole_name"
 - optimization: "LLM optimization description"
 - semantic_link: "Semantic description of the warmhole link"
 - auto_document: true
@@ -179,7 +178,6 @@ One-line overview
 - description: "Processes data and transfers state"
 - state_transfer: ["data_path", "dataset_format"]
 - condition: "{{system_state}} == 'processing'"
-- next_warmhole: "data_analysis"
 - optimization: "Optimize data processing based on current system state"
 - semantic_link: "Link to data analysis warmhole"
 - auto_document: true
@@ -284,6 +282,12 @@ For technical details:
 - [System Architecture](Rdm_documentation.md#system-architecture)
 - [Testing Methods](Rdm_testing.md#testing-methods)
 - [Git Integration](Rdm_git.md#core-features)
+
+## Cross-References
+- [Parser Rules](Rmd_parser_rules.md)
+- [System Documentation](Rdm_documentation.md)
+- [README](../README.md)
+- [Example Library](../my_first_library.md)
 
 ---
 📝 This document serves as the standard reference for READMEs system documentation.

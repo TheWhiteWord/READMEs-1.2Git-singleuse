@@ -104,6 +104,7 @@ async function system_init(readmeContent) {
         warmholeBlocks.forEach(block => {
             const def = parseWarmholeDef(block.raw);
             if (def) {
+                delete def.next_warmhole; // Remove next_warmhole property
                 systemState.warmholes[def.name] = def;
             }
         });
