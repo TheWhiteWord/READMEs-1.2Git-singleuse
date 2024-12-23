@@ -379,45 +379,6 @@ async function navigateWarmhole(id) {
 }
 
 /**
- * Process user intent and determine execution path
- */
-async function processUserIntent(message, context = {}) {
-    logSystem('Processing user intent', { message, context });
-    
-    try {
-        // Ask LLM to analyze intent and plan execution
-        const plan = await chatWithLLM(JSON.stringify({
-            type: 'analyze_intent',
-            message,
-            context: {
-                systemState: context.systemState,
-                currentWarmhole: context.activeWarmhole,
-                availableFunctions: Object.keys(systemState.functions),
-                availableWarmholes: Object.keys(systemState.warmholes)
-            }
-        }));
-
-        // Check if the response is JSON
-        let parsedPlan;
-        try {
-            parsedPlan = JSON.parse(plan);
-        } catch (error) {
-            // Handle plain text response
-            logSystem('Received plain text response from LLM', { plan });
-            parsedPlan = { steps: [{ type: 'message', content: plan }] };
-        }
-
-        // Execute the plan
-        const result = await executeLLMPlan(parsedPlan);
-        saveState();
-        return result;
-    } catch (error) {
-        logSystem('Intent processing failed', { error: error.message });
-        throw error;
-    }
-}
-
-/**
  * Execute plan provided by LLM
  */
 async function executeLLMPlan(plan) {
@@ -571,7 +532,6 @@ module.exports = {
     systemState,
     // Export helper functions for testing
     logSystem,
-    processUserIntent,
     executeLLMPlan,
     navigateWarmholeLLM,
     executeFunctionLLM,
