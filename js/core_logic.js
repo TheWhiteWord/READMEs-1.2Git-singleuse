@@ -341,17 +341,22 @@ async function executeLLMPlan(plan) {
     
     const results = [];
     for (const step of plan.steps) {
+        logSystem(`Processing step: ${JSON.stringify(step)}`);
         switch (step.type) {
             case 'navigate':
+                logSystem(`Navigating to warmhole: ${step.warmhole}`);
                 results.push(await execute(step.warmhole));
                 break;
             case 'execute':
+                logSystem(`Executing function: ${step.function}`);
                 results.push(await execute(step.function, step.input));
                 break;
             case 'optimize':
+                logSystem(`Optimizing warmhole: ${step.warmhole}`);
                 results.push(await optimizeWarmholeLLM(step.warmhole, step.optimization));
                 break;
             default:
+                logSystem(`Unknown step type: ${step.type}`);
                 throw new Error(`Unknown step type: ${step.type}`);
         }
     }
