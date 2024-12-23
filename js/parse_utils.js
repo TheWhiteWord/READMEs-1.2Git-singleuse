@@ -65,7 +65,7 @@ function parseWarmholeDef(content) {
     return {
         name: match.groups.name,
         description: match.groups.description,
-        state_transfer: match.groups.transfer.split(',').map(s => s.trim()),
+        state_transfer: match.groups.transfer.split(',').map(s => s.trim().replace(/^"|"$/g, '')),
         condition: match.groups.condition
     };
 }
