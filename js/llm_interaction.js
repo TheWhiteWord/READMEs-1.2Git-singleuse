@@ -7,12 +7,10 @@ const ollama = require('ollama');
  */
 async function chatWithLLM(message) {
     try {
-        console.log('Sending message to LLM:', message); // Log the request
         const response = await ollama.default.chat({
             model: 'hf.co/MaziyarPanahi/Mistral-7B-Instruct-v0.3-GGUF:Q6_K',
             messages: [{ role: 'user', content: message }]
         });
-        console.log('LLM response:', response); // Log the response
         if (!response.message || !response.message.content) {
             throw new Error('Invalid response from LLM');
         }
@@ -30,12 +28,10 @@ async function chatWithLLM(message) {
  */
 async function generateCode(prompt) {
     try {
-        console.log('Sending prompt to LLM:', prompt); // Log the request
         const response = await ollama.default.generate({
             model: 'hf.co/MaziyarPanahi/Mistral-7B-Instruct-v0.3-GGUF:Q6_K',
             prompt: prompt
         });
-        console.log('LLM response:', response); // Log the response
         if (!response.message || !response.message.content) {
             throw new Error('Invalid response from LLM');
         }
@@ -54,12 +50,10 @@ async function generateCode(prompt) {
 async function analyzeState(state) {
     try {
         const message = `Analyze the following state: ${JSON.stringify(state)}`;
-        console.log('Sending state analysis request to LLM:', message); // Log the request
         const response = await ollama.default.chat({
             model: 'hf.co/MaziyarPanahi/Mistral-7B-Instruct-v0.3-GGUF:Q6_K',
             messages: [{ role: 'user', content: message }]
         });
-        console.log('LLM response:', response); // Log the response
         if (!response.message || !response.message.content) {
             throw new Error('Invalid response from LLM');
         }
@@ -84,12 +78,10 @@ async function processUserIntent(readmeContent, systemState) {
             availableFunctions: Object.keys(systemState.functions),
             availableWarmholes: Object.keys(systemState.warmholes)
         };
-        console.log('Sending README analysis request to LLM with context:', { message, context }); // Log the request
         const response = await ollama.default.chat({
             model: 'hf.co/MaziyarPanahi/Mistral-7B-Instruct-v0.3-GGUF:Q6_K',
             messages: [{ role: 'user', content: JSON.stringify({ message, context }) }]
         });
-        console.log('LLM response:', response); // Log the response
         if (!response.message || !response.message.content) {
             throw new Error('Invalid response from LLM');
         }

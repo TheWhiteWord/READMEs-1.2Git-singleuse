@@ -14,16 +14,14 @@ function loadReadmeContent() {
 // Initialize the system
 function initializeSystem() {
     const readmeContent = loadReadmeContent();
-    const initResult = system_init(readmeContent);
-    console.log('System initialization result:', initResult);
+    system_init(readmeContent);
 }
 
 // Test function execution
 async function testFunctionExecution() {
     try {
         loadState(); // Load the state before execution
-        const execResult = await execute('process_intent', { message: 'hello world' });
-        console.log('Function execution result:', execResult);
+        await execute('process_intent', { message: 'hello world' });
         saveState(); // Save the state after execution
     } catch (error) {
         console.error('Function execution failed:', error);
@@ -34,8 +32,7 @@ async function testFunctionExecution() {
 function testWarmholeNavigation() {
     try {
         loadState(); // Load the state before navigation
-        const navResult = navigateWarmhole('intent_processor');
-        console.log('Warmhole navigation result:', navResult);
+        navigateWarmhole('intent_processor');
         saveState(); // Save the state after navigation
     } catch (error) {
         console.error('Warmhole navigation failed:', error);
@@ -46,11 +43,10 @@ function testWarmholeNavigation() {
 async function testUserIntentProcessing() {
     try {
         loadState(); // Load the state before processing user intent
-        const result = await processUserIntent('Process this dataset and generate a report', {
+        await processUserIntent('Process this dataset and generate a report', {
             systemState,
             activeWarmhole: 'intent_processor'
         });
-        console.log('User intent processing result:', result);
         saveState(); // Save the state after processing user intent
     } catch (error) {
         console.error('User intent processing failed:', error);
@@ -61,8 +57,7 @@ async function testUserIntentProcessing() {
 async function testLLMInteraction() {
     try {
         loadState(); // Load the state before LLM interaction
-        const llmResponse = await execute('process_intent', { message: 'test LLM interaction' }, true);
-        console.log('LLM interaction result:', llmResponse);
+        await execute('process_intent', { message: 'test LLM interaction' }, true);
         saveState(); // Save the state after LLM interaction
     } catch (error) {
         console.error('LLM interaction failed:', error);
@@ -77,7 +72,6 @@ async function runTests() {
     testWarmholeNavigation();
     await testUserIntentProcessing();
     await testLLMInteraction();
-    console.log('All tests completed');
     saveState();
 }
 

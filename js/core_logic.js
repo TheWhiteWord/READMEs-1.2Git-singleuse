@@ -88,7 +88,6 @@ async function system_init(readmeContent) {
         functionBlocks.forEach(block => {
             const def = parseFunctionDef(block.raw);
             if (def) {
-                console.log("Found function:", def.name);
                 systemState.functions[def.name] = def;
             }
         });
@@ -97,7 +96,6 @@ async function system_init(readmeContent) {
         templateBlocks.forEach(block => {
             const def = parseTemplateDef(block.raw);
             if (def) {
-                console.log("Found template:", def.name);
                 systemState.templates[def.name] = def;
             }
         });
@@ -106,7 +104,6 @@ async function system_init(readmeContent) {
         warmholeBlocks.forEach(block => {
             const def = parseWarmholeDef(block.raw);
             if (def) {
-                console.log("Found warmhole:", def.name);
                 systemState.warmholes[def.name] = def;
             }
         });
@@ -166,7 +163,6 @@ async function execute(nameOrPlan, context = {}, llm = true) {
                 try {
                     parsedResponse = JSON.parse(llmResponse);
                 } catch (error) {
-                    logSystem('Received plain text response from LLM', { llmResponse });
                     parsedResponse = { input: { message: llmResponse } };
                 }
 
@@ -199,7 +195,6 @@ async function execute(nameOrPlan, context = {}, llm = true) {
                 try {
                     parsedResponse = JSON.parse(llmResponse);
                 } catch (error) {
-                    logSystem('Received plain text response from LLM', { llmResponse });
                     parsedResponse = { input: { message: llmResponse } };
                 }
 
@@ -257,7 +252,6 @@ async function executeTemplateDef(templateDef, context) {
     try {
         parsedResponse = JSON.parse(llmResponse);
     } catch (error) {
-        logSystem('Received plain text response from LLM', { llmResponse });
         parsedResponse = { result: llmResponse };
     }
 
@@ -315,7 +309,6 @@ async function navigateWarmhole(id) {
     try {
         nextWarmhole = JSON.parse(llmResponse).next_warmhole;
     } catch (error) {
-        logSystem('Received plain text response from LLM', { llmResponse });
         nextWarmhole = llmResponse;
     }
 
