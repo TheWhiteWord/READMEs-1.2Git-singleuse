@@ -258,8 +258,8 @@ async function executeTemplateDef(templateDef, context) {
     }
 
     // Execute the transform function with the parsed response
-    const transformFunction = new Function('context', templateDef.transform);
-    const result = transformFunction(parsedResponse.result);
+    const transformFunction = new Function('context', 'execute', templateDef.transform);
+    const result = await transformFunction(parsedResponse.result, execute);
 
     return {
         status: "success",

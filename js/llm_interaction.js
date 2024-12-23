@@ -17,7 +17,7 @@ async function chatWithLLM(message) {
         return response.message.content;
     } catch (error) {
         console.error('Error interacting with LLM:', error);
-        throw new Error('Failed to interact with LLM');
+        return 'Error: Failed to interact with LLM';
     }
 }
 
@@ -38,7 +38,7 @@ async function generateCode(prompt) {
         return response.message.content;
     } catch (error) {
         console.error('Error generating code with LLM:', error);
-        throw new Error('Failed to generate code with LLM');
+        return 'Error: Failed to generate code with LLM';
     }
 }
 
@@ -60,7 +60,7 @@ async function analyzeState(state) {
         return response.message.content;
     } catch (error) {
         console.error('Error analyzing state:', error);
-        throw new Error('Failed to analyze state with LLM');
+        return 'Error: Failed to analyze state with LLM';
     }
 }
 
@@ -102,7 +102,10 @@ async function processUserIntent(readmeContent, systemState) {
         return plan;
     } catch (error) {
         console.error('Error processing user intent:', error);
-        throw new Error('Failed to process user intent with LLM');
+        return {
+            steps: [],
+            userMessage: 'Error: Failed to process user intent with LLM'
+        };
     }
 }
 
