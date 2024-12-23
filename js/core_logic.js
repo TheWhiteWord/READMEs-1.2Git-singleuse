@@ -123,9 +123,13 @@ async function system_init(readmeContent) {
         // Analyze the README content to determine the user intent and generate an execution plan
         const plan = await processUserIntent(readmeContent, systemState);
 
-        // Execute the plan
-        const result = await executeLLMPlan(plan);
-        return result;
+        // Execute the first step of the plan
+        if (plan.steps && plan.steps.length > 0) {
+            const firstStep = plan.steps[0];
+            await executeLLMPlan({ steps: [firstStep] });
+        }
+
+        return plan;
     } catch (error) {
         logSystem('Initialization failed', { error: error.message });
         throw error;
@@ -345,15 +349,18 @@ async function executeLLMPlan(plan) {
         switch (step.type) {
             case 'navigate':
                 logSystem(`Navigating to warmhole: ${step.warmhole}`);
-                results.push(await execute(step.warmhole));
+                const navigateResult = await navigateWarmhole(step.warmhole);
+                results.push(navigateResult);
                 break;
             case 'execute':
                 logSystem(`Executing function: ${step.function}`);
-                results.push(await execute(step.function, step.input));
+                const executeResult = await execute(step.function, step.input);
+                results.push(executeResult);
                 break;
             case 'optimize':
                 logSystem(`Optimizing warmhole: ${step.warmhole}`);
-                results.push(await optimizeWarmholeLLM(step.warmhole, step.optimization));
+                const optimizeResult = await optimizeWarmholeLLM(step.warmhole, step.optimization);
+                results.push(optimizeResult);
                 break;
             default:
                 logSystem(`Unknown step type: ${step.type}`);
