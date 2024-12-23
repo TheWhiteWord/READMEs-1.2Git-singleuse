@@ -183,6 +183,14 @@ function executeFunctionDef(fnDef, context) {
  * Execute template definition
  */
 function executeTemplateDef(templateDef, context) {
+    // Include the llm object in the context
+    context.llm = {
+        processUserIntent: (message) => {
+            // Simulate the LLM processing user intent
+            return `Processed intent: ${message}`;
+        }
+    };
+
     // Replace placeholders in transform
     let code = templateDef.transform;
     Object.entries(context).forEach(([key, value]) => {
