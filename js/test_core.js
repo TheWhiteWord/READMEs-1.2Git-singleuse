@@ -26,9 +26,11 @@ console.log('Starting tests...');
 
 // Test system initialization
 try {
+    debugger; // Add breakpoint here
     const initResult = system_init(testMd);
     console.log('Initialization test:', initResult);
 } catch (error) {
+    debugger; // Add breakpoint for errors
     console.error('Initialization failed:', error);
 }
 
