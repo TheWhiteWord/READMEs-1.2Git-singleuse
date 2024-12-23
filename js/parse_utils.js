@@ -58,7 +58,7 @@ function parseTemplateDef(content) {
  * Parse warmhole definition from markdown
  */
 function parseWarmholeDef(content) {
-    const regex = /^# Warmhole:\s+(?<name>\w+)\s*\n-\s*description:\s*"(?<description>[^"]+)"\s*\n-\s*state_transfer:\s*\[(?<transfer>[^\]]+)\]\s*\n-\s*condition:\s*"(?<condition>[^"]+)"\s*\n-\s*next_warmhole:\s*"(?<next>[^"]+)"/;
+    const regex = /^# Warmhole:\s+(?<name>\w+)\s*\n-\s*description:\s*"(?<description>[^"]+)"\s*\n-\s*state_transfer:\s*\[(?<transfer>[^\]]+)\]\s*\n-\s*condition:\s*"(?<condition>[^"]+)"/;
     const match = content.match(regex);
     if (!match?.groups) return null;
     
@@ -66,8 +66,7 @@ function parseWarmholeDef(content) {
         name: match.groups.name,
         description: match.groups.description,
         state_transfer: match.groups.transfer.split(',').map(s => s.trim()),
-        condition: match.groups.condition,
-        next_warmhole: match.groups.next
+        condition: match.groups.condition
     };
 }
 
