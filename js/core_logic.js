@@ -238,7 +238,12 @@ function executeFunctionDef(fnDef, context) {
  */
 async function executeTemplateDef(templateDef, context) {
     // Call the LLM processing function
-    const llmResponse = await processUserIntent(context.message, systemState);
+    const llmResponse = await chatWithLLM(JSON.stringify({
+        type: 'execute_template',
+        template: templateDef.name,
+        input: context,
+        systemState: systemState
+    }));
 
     let parsedResponse;
     try {

@@ -29,7 +29,7 @@ describe('Core Logic', () => {
         assert.strictEqual(typeof result, 'object');
     });
 
-    it('should load and save the system state', () => {
+    it('should load and save the system state', async () => {
         loadState();
         assert.strictEqual(typeof systemState, 'object');
         saveState();
