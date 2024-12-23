@@ -135,28 +135,63 @@ function system_init(readmeContent) {
 /**
  * Execute a function or template
  */
-function execute(name, context = {}) {
+async function execute(name, context = {}) {
     logSystem(`Executing ${name}`, { context });
-    
+
     try {
+        // Load the state before execution
+        loadState();
+
         // Check if function exists
         const fn = systemState.functions[name];
         if (fn) {
+            // Pass user inputs and system state to the LLM
+            const llmResponse = await chatWithLLM(JSON.stringify({
+                type: 'execute_function',
+                function: name,
+                input: context,
+                systemState: systemState
+            }));
+
+            // Process the LLM response
+            const parsedResponse = JSON.parse(llmResponse);
+            if (parsedResponse.error) {
+                throw new Error(parsedResponse.error);
+            }
+
             // Execute function with context
-            const result = executeFunctionDef(fn, context);
+            const result = executeFunctionDef(fn, parsedResponse.input);
+            
+            // Save the state after execution
             saveState();
             return result;
         }
-        
+
         // Check if template exists
         const template = systemState.templates[name];
         if (template) {
+            // Pass user inputs and system state to the LLM
+            const llmResponse = await chatWithLLM(JSON.stringify({
+                type: 'execute_template',
+                template: name,
+                input: context,
+                systemState: systemState
+            }));
+
+            // Process the LLM response
+            const parsedResponse = JSON.parse(llmResponse);
+            if (parsedResponse.error) {
+                throw new Error(parsedResponse.error);
+            }
+
             // Execute template with context
-            const result = executeTemplateDef(template, context);
+            const result = executeTemplateDef(template, parsedResponse.input);
+            
+            // Save the state after execution
             saveState();
             return result;
         }
-        
+
         throw new Error(`No function or template found with name: ${name}`);
     } catch (error) {
         logSystem('Execution failed', { error: error.message });
@@ -227,6 +262,9 @@ function executeTemplateDef(templateDef, context) {
 function navigateWarmhole(id) {
     logSystem(`Navigating warmhole: ${id}`);
     
+    // Load the state before navigation
+    loadState();
+
     const warmhole = systemState.warmholes[id];
     if (!warmhole) {
         throw new Error(`Warmhole not found: ${id}`);
@@ -255,6 +293,7 @@ function navigateWarmhole(id) {
         ...systemState.variables
     };
     
+    // Save the state after navigation
     saveState();
     return {
         status: "navigated",
@@ -387,6 +426,7 @@ async function navigateWarmholeLLM(warmholeId, context = {}) {
         });
     }
 
+    // Save the state after navigation
     saveState();
     return {
         status: 'navigated',
