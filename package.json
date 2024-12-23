@@ -4,15 +4,17 @@
   "description": "READMEs Programming System",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+  "test": "mocha tests/**/*.test.js"
   },
   "dependencies": {
     "axios": "^0.21.1",
     "jest": "^27.0.6",
-    "source-map-support": "^0.5.19",
-    "ollama": "^0.5.11"
+    "ollama": "^0.5.11",
+    "source-map-support": "^0.5.19"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "mocha": "^11.0.1"
+  },
   "author": "",
   "license": "ISC"
 }
