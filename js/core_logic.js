@@ -246,12 +246,18 @@ async function executeTemplateDef(templateDef, context) {
     };
 
     // Call the LLM processing function
-    const llmResponse = await processUserIntent(context.message, systemState);
+    const llmResponse = await chatWithLLM(JSON.stringify({
+        type: 'execute_template',
+        template: templateDef.name,
+        input: context,
+        systemState: systemState
+    }));
 
     let parsedResponse;
     try {
         parsedResponse = JSON.parse(llmResponse);
     } catch (error) {
+        logSystem('Received plain text response from LLM', { llmResponse });
         parsedResponse = { result: llmResponse };
     }
 
@@ -259,9 +265,13 @@ async function executeTemplateDef(templateDef, context) {
         throw new Error(parsedResponse.error);
     }
 
+    // Execute the transform function with the parsed response
+    const transformFunction = new Function('context', templateDef.transform);
+    const result = transformFunction(parsedResponse.result);
+
     return {
         status: "success",
-        result: parsedResponse.result,
+        result: result,
         format: templateDef.outputFormat
     };
 }
