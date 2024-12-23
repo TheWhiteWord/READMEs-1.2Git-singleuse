@@ -3,3 +3,7 @@
 ./history/*
 /vscode-extension/node_modules
 ./vscode-extension/node_modules
+/node_modules
+./node_modules
+/node_modules/READMEs-1.2Git-singleuse/.gitignore
+./node_modules/READMEs-1.2Git-singleuse/.gitignore
